@@ -4,15 +4,10 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/GregoryKogan/mephi-databases/internal/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
-
-type User struct {
-	gorm.Model
-	ID   uint
-	Name string
-}
 
 func main() {
 	db, err := gorm.Open(postgres.New(postgres.Config{DSN: os.Getenv("DSN")}), &gorm.Config{})
@@ -21,24 +16,21 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := db.AutoMigrate(&User{}); err != nil {
+	// Migrate all models
+	if err := db.AutoMigrate(
+		&models.User{},
+		&models.Password{},
+		&models.Role{},
+		&models.Board{},
+		&models.BoardMember{},
+		&models.BoardRole{},
+		&models.List{},
+		&models.Card{},
+		&models.Label{},
+		&models.Comment{},
+		&models.Attachment{},
+	); err != nil {
 		fmt.Fprintf(os.Stderr, "failed to migrate database: %v\n", err)
 		os.Exit(1)
 	}
-
-	user := User{Name: "John Doe"}
-	if err := db.Create(&user).Error; err != nil {
-		fmt.Fprintf(os.Stderr, "failed to create user: %v\n", err)
-		os.Exit(1)
-	}
-
-	fmt.Printf("User created: %v\n", user)
-
-	var users []User
-	if err := db.Find(&users).Error; err != nil {
-		fmt.Fprintf(os.Stderr, "failed to find users: %v\n", err)
-		os.Exit(1)
-	}
-
-	fmt.Printf("Users found: %v\n", users)
 }

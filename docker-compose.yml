@@ -43,6 +43,7 @@ services:
       PGADMIN_DEFAULT_EMAIL: mephi@localhost.ru
       PGADMIN_DEFAULT_PASSWORD: mephi
       PGADMIN_CONFIG_SERVER_MODE: 'False'
+      GUNICORN_ACCESS_LOGFILE: /dev/null
     volumes:
       - pgadmin:/var/lib/pgadmin
     ports:

@@ -8,8 +8,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    ports:
-      - 8888:8888
     environment:
       DSN: "host=database user=mephi password=mephi dbname=mephi-db port=5432 sslmode=disable TimeZone=Europe/Moscow"
 

@@ -17,8 +17,5 @@ COPY internal ./internal
 # Build the Go app
 RUN go build -o /mephi-databases ./cmd/mephi-databases
 
-# Expose port 8888 to the outside world
-EXPOSE 8888
-
 # Command to run the executable
 CMD ["/mephi-databases"]

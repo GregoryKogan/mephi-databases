@@ -35,7 +35,7 @@ func (s *UserSeederImpl) Seed(count uint) {
 
 	for i := uint(0); i < count; i++ {
 		user := models.User{
-			Username: faker.FirstName() + "-" + faker.Username(),
+			Username: faker.FirstName() + " " + faker.LastName(),
 			Email:    faker.Email(),
 			RoleID:   s.roleIDs[rand.Intn(len(s.roleIDs))],
 		}

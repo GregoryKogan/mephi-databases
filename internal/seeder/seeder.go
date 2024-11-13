@@ -15,6 +15,7 @@ type SeederImpl struct {
 	userSeeder      entities.UserSeeder
 	passwordSeeder  entities.PasswordSeeder
 	boardSeeder     entities.BoardSeeder
+	listSeeder      entities.ListSeeder
 }
 
 func NewSeeder(db *gorm.DB) Seeder {
@@ -24,6 +25,7 @@ func NewSeeder(db *gorm.DB) Seeder {
 		userSeeder:      entities.NewUserSeeder(db),
 		passwordSeeder:  entities.NewPasswordSeeder(db),
 		boardSeeder:     entities.NewBoardSeeder(db),
+		listSeeder:      entities.NewListSeeder(db),
 	}
 }
 
@@ -39,4 +41,7 @@ func (s *SeederImpl) Seed() {
 
 	s.boardSeeder.SetUserIDs(s.userSeeder.GetIDs())
 	s.boardSeeder.Seed(10)
+
+	s.listSeeder.SetBoardIDs(s.boardSeeder.GetIDs())
+	s.listSeeder.Seed(10)
 }

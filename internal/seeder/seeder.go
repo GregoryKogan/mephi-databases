@@ -1,6 +1,8 @@
 package seeder
 
 import (
+	"log/slog"
+
 	"github.com/GregoryKogan/mephi-databases/internal/seeder/entities"
 	"gorm.io/gorm"
 )
@@ -10,6 +12,7 @@ type Seeder interface {
 }
 
 type SeederImpl struct {
+	db              *gorm.DB
 	roleSeeder      entities.RoleSeeder
 	boardRoleSeeder entities.BoardRoleSeeder
 	userSeeder      entities.UserSeeder
@@ -20,6 +23,7 @@ type SeederImpl struct {
 
 func NewSeeder(db *gorm.DB) Seeder {
 	return &SeederImpl{
+		db:              db,
 		roleSeeder:      entities.NewRoleSeeder(db),
 		boardRoleSeeder: entities.NewBoardRoleSeeder(db),
 		userSeeder:      entities.NewUserSeeder(db),
@@ -30,6 +34,8 @@ func NewSeeder(db *gorm.DB) Seeder {
 }
 
 func (s *SeederImpl) Seed() {
+	s.deleteAll()
+
 	s.roleSeeder.Seed()
 	s.boardRoleSeeder.Seed()
 
@@ -44,4 +50,14 @@ func (s *SeederImpl) Seed() {
 
 	s.listSeeder.SetBoardIDs(s.boardSeeder.GetIDs())
 	s.listSeeder.Seed(10)
+}
+
+func (s *SeederImpl) deleteAll() {
+	slog.Info("Deleting all data")
+	s.db.Exec("DELETE FROM passwords")
+	s.db.Exec("DELETE FROM lists")
+	s.db.Exec("DELETE FROM boards")
+	s.db.Exec("DELETE FROM users")
+	s.db.Exec("DELETE FROM roles")
+	s.db.Exec("DELETE FROM board_roles")
 }

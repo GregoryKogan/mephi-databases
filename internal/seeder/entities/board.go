@@ -1,6 +1,8 @@
 package entities
 
 import (
+	"log/slog"
+
 	"github.com/GregoryKogan/mephi-databases/internal/models"
 	"github.com/go-faker/faker/v4"
 	"golang.org/x/exp/rand"
@@ -24,8 +26,7 @@ func NewBoardSeeder(db *gorm.DB) BoardSeeder {
 }
 
 func (s *BoardSeederImpl) Seed(count uint) {
-	// Delete all boards before seeding
-	s.db.Exec("DELETE FROM boards")
+	slog.Info("Seeding boards")
 
 	for i := uint(0); i < count; i++ {
 		board := models.Board{

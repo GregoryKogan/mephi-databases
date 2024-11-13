@@ -1,6 +1,8 @@
 package entities
 
 import (
+	"log/slog"
+
 	"github.com/GregoryKogan/mephi-databases/internal/models"
 	"github.com/go-faker/faker/v4"
 	"golang.org/x/exp/rand"
@@ -24,12 +26,11 @@ func NewUserSeeder(db *gorm.DB) UserSeeder {
 }
 
 func (s *UserSeederImpl) Seed(count uint) {
+	slog.Info("Seeding users")
+
 	if len(s.roleIDs) == 0 {
 		panic("roleIDs are not set")
 	}
-
-	// Delete all users before seeding
-	s.db.Exec("DELETE FROM users")
 
 	for i := uint(0); i < count; i++ {
 		user := models.User{

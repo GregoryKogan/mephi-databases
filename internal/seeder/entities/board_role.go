@@ -1,6 +1,8 @@
 package entities
 
 import (
+	"log/slog"
+
 	"github.com/GregoryKogan/mephi-databases/internal/models"
 	"github.com/jackc/pgx/pgtype"
 	"gorm.io/gorm"
@@ -21,6 +23,8 @@ func NewBoardRoleSeeder(db *gorm.DB) BoardRoleSeeder {
 }
 
 func (s *BoardRoleSeederImpl) Seed() {
+	slog.Info("Seeding board roles")
+
 	var roles = []models.BoardRole{
 		{
 			Title: "redactor",
@@ -44,9 +48,6 @@ func (s *BoardRoleSeederImpl) Seed() {
 			},
 		},
 	}
-
-	// Delete all roles before seeding
-	s.db.Exec("DELETE FROM board_roles")
 
 	for _, role := range roles {
 		s.db.Create(&role)

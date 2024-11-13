@@ -1,6 +1,8 @@
 package entities
 
 import (
+	"log/slog"
+
 	"github.com/GregoryKogan/mephi-databases/internal/models"
 	"github.com/jackc/pgx/pgtype"
 	"gorm.io/gorm"
@@ -21,6 +23,8 @@ func NewRoleSeeder(db *gorm.DB) RoleSeeder {
 }
 
 func (s *RoleSeederImpl) Seed() {
+	slog.Info("Seeding roles")
+
 	var userPermissions pgtype.JSONB
 	userPermissions.Set(`{"admin": false}`)
 
@@ -37,9 +41,6 @@ func (s *RoleSeederImpl) Seed() {
 			Permissions: userPermissions,
 		},
 	}
-
-	// Delete all roles before seeding
-	s.db.Exec("DELETE FROM roles")
 
 	for _, role := range roles {
 		s.db.Create(&role)

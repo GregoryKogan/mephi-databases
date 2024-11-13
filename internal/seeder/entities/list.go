@@ -1,6 +1,7 @@
 package entities
 
 import (
+	"log/slog"
 	"math/rand"
 
 	"github.com/GregoryKogan/mephi-databases/internal/models"
@@ -25,12 +26,11 @@ func NewListSeeder(db *gorm.DB) ListSeeder {
 }
 
 func (s *ListSeederImpl) Seed(count uint) {
+	slog.Info("Seeding lists")
+
 	if len(s.boardIDs) == 0 {
 		panic("boardIDs are not set")
 	}
-
-	// Delete all lists before seeding
-	s.db.Exec("DELETE FROM lists")
 
 	for i := uint(0); i < count; i++ {
 		list := models.List{

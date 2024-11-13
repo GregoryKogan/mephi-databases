@@ -1,8 +1,10 @@
 package entities
 
 import (
+	"crypto/rand"
+	"log/slog"
+
 	"github.com/GregoryKogan/mephi-databases/internal/models"
-	"github.com/go-faker/faker/v4"
 	"gorm.io/gorm"
 )
 
@@ -21,19 +23,18 @@ func NewPasswordSeeder(db *gorm.DB) PasswordSeeder {
 }
 
 func (s *PasswordSeederImpl) Seed() {
+	slog.Info("Seeding passwords")
+
 	if len(s.userIDs) == 0 {
 		panic("userIDs are not set")
 	}
-
-	// Delete all passwords before seeding
-	s.db.Exec("DELETE FROM passwords")
 
 	for _, userID := range s.userIDs {
 		for {
 			password := models.Password{
 				UserID:    userID,
-				Hash:      randomHash(),
-				Salt:      randomSalt(),
+				Hash:      randomBytes(),
+				Salt:      randomBytes(),
 				Algorithm: "argon2id",
 			}
 
@@ -48,11 +49,11 @@ func (s *PasswordSeederImpl) SetUserIDs(ids []uint) {
 	s.userIDs = ids
 }
 
-func randomHash() []byte {
-	password := faker.Password()
-	return []byte(password)
-}
-
-func randomSalt() []byte {
-	return []byte(faker.Timestamp())
+func randomBytes() []byte {
+	bytes := make([]byte, 128)
+	_, err := rand.Read(bytes)
+	if err != nil {
+		return nil
+	}
+	return bytes
 }

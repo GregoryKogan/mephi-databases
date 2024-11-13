@@ -28,18 +28,25 @@ func NewBoardSeeder(db *gorm.DB) BoardSeeder {
 
 func (s *BoardSeederImpl) Seed(count uint) {
 	slog.Info(fmt.Sprintf("Seeding %d boards", count))
+	defer slog.Info("Boards seeded")
 
+	boards := make([]models.Board, count)
 	for i := uint(0); i < count; i++ {
-		board := models.Board{
+		boards[i] = models.Board{
 			OwnerID:     s.userIDs[rand.Intn(len(s.userIDs))],
 			Title:       "Board " + faker.Word(),
 			Description: faker.Sentence(),
 		}
-
-		s.db.Create(&board)
-		s.ids = append(s.ids, board.ID)
 	}
 
+	if err := s.db.Create(&boards).Error; err != nil {
+		panic(err)
+	}
+
+	s.ids = make([]uint, count)
+	for i, board := range boards {
+		s.ids[i] = board.ID
+	}
 }
 
 func (s *BoardSeederImpl) GetIDs() []uint {

@@ -24,6 +24,7 @@ func NewBoardRoleSeeder(db *gorm.DB) BoardRoleSeeder {
 
 func (s *BoardRoleSeederImpl) Seed() {
 	slog.Info("Seeding board roles")
+	defer slog.Info("Board roles seeded")
 
 	var roles = []models.BoardRole{
 		{

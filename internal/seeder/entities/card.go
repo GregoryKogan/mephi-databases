@@ -28,21 +28,29 @@ func NewCardSeeder(db *gorm.DB) CardSeeder {
 
 func (s *CardSeederImpl) Seed(count uint) {
 	slog.Info(fmt.Sprintf("Seeding %d cards", count))
+	defer slog.Info("Cards seeded")
 
 	if len(s.listIDs) == 0 {
 		panic("listIDs are not set")
 	}
 
+	cards := make([]models.Card, count)
 	for i := uint(0); i < count; i++ {
-		card := models.Card{
+		cards[i] = models.Card{
 			ListID:  s.listIDs[rand.Intn(len(s.listIDs))],
 			Title:   "Card " + faker.Word(),
 			Content: faker.Sentence(),
 			Order:   int(i),
 		}
+	}
 
-		s.db.Create(&card)
-		s.ids = append(s.ids, card.ID)
+	if err := s.db.Create(&cards).Error; err != nil {
+		panic(err)
+	}
+
+	s.ids = make([]uint, count)
+	for i, card := range cards {
+		s.ids[i] = card.ID
 	}
 }
 

@@ -28,6 +28,7 @@ func NewUserSeeder(db *gorm.DB) UserSeeder {
 
 func (s *UserSeederImpl) Seed(count uint) {
 	slog.Info(fmt.Sprintf("Seeding %d users", count))
+	defer slog.Info("Users seeded")
 
 	if len(s.roleIDs) == 0 {
 		panic("roleIDs are not set")

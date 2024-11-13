@@ -29,31 +29,37 @@ func NewBoardMemberSeeder(db *gorm.DB) BoardMemberSeeder {
 
 func (s *BoardMemberSeederImpl) Seed(count uint) {
 	slog.Info(fmt.Sprintf("Seeding %d board members", count))
+	defer slog.Info("Board members seeded")
 
 	if len(s.boardIDs) == 0 || len(s.userIDs) == 0 || len(s.boardRoleIDs) == 0 {
 		panic("boardIDs, userIDs or boardRoleIDs are not set")
 	}
 
+	boardMembers := make([]models.BoardMember, count)
+	existingMembers := make(map[uint]map[uint]bool)
+
 	for created := uint(0); created < count; {
 		boardID := s.boardIDs[rand.Intn(len(s.boardIDs))]
 		userID := s.userIDs[rand.Intn(len(s.userIDs))]
 
-		// Check if user is already a member of the board
-		var count int64
-		s.db.Model(&models.BoardMember{}).Where("board_id = ? AND user_id = ?", boardID, userID).Count(&count)
+		if _, exists := existingMembers[boardID]; !exists {
+			existingMembers[boardID] = make(map[uint]bool)
+		}
 
-		if count == 0 {
+		if !existingMembers[boardID][userID] {
 			roleID := s.boardRoleIDs[rand.Intn(len(s.boardRoleIDs))]
-
-			member := models.BoardMember{
+			boardMembers[created] = models.BoardMember{
 				BoardID:     boardID,
 				UserID:      userID,
 				BoardRoleID: roleID,
 			}
-
-			s.db.Create(&member)
+			existingMembers[boardID][userID] = true
 			created++
 		}
+	}
+
+	if err := s.db.Create(&boardMembers).Error; err != nil {
+		panic(err)
 	}
 }
 

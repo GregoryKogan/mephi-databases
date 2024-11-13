@@ -24,6 +24,7 @@ func NewRoleSeeder(db *gorm.DB) RoleSeeder {
 
 func (s *RoleSeederImpl) Seed() {
 	slog.Info("Seeding roles")
+	defer slog.Info("Roles seeded")
 
 	var userPermissions pgtype.JSONB
 	userPermissions.Set(`{"admin": false}`)

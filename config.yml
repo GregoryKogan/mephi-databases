@@ -1,15 +1,18 @@
 seeder:
-  users: 10000
-  # Average ratios of entities
-  # Notice that labels and board members are the most numerous entities (30 times more than users)
-  # Overall, the number of entities is 160 times more than the number of users
-  # For example, if you have 10.000 users, you will have 1.600.000 entities in total
-  boards_per_user: 3 # 3x users
-  lists_per_board: 3 # 9x users
-  cards_per_list: 2 # 18x users
-  labels_per_board: 10 # 30x users
-  comments_per_card: 0.5 # 9x users
-  attachments_per_card: 0.33 # 6x users
-  board_members_per_board: 10 # 30x users
-  card_labels_per_card: 1.5 # 27x users
-  card_assignees_per_card: 1.5 # 27x users
+  load_batch_size: 2000
+  create_batch_size: 5000
+  entities: # Number of entities to create
+    users: 10000
+    # Average ratios of entities
+    # Notice that labels and board members are the most numerous entities (30 times more than users)
+    # Overall, the number of entities is 161 times more than the number of users
+    # For example, if you have 10.000 users, you will have 1.610.005 entities in total
+    boards_per_user: 3 # 3x users
+    lists_per_board: 3 # 9x users
+    cards_per_list: 2 # 18x users
+    labels_per_board: 10 # 30x users
+    comments_per_card: 0.5 # 9x users
+    attachments_per_card: 0.333 # 6x users
+    board_members_per_board: 10 # 30x users
+    card_labels_per_card: 1.5 # 27x users
+    card_assignees_per_card: 1.5 # 27x users

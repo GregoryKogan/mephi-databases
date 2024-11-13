@@ -28,15 +28,19 @@ func NewCommentSeeder(db *gorm.DB) CommentSeeder {
 
 func (s *CommentSeederImpl) Seed(count uint) {
 	slog.Info(fmt.Sprintf("Seeding %d comments", count))
+	defer slog.Info("Comments seeded")
 
+	comments := make([]models.Comment, count)
 	for i := uint(0); i < count; i++ {
-		comment := models.Comment{
+		comments[i] = models.Comment{
 			CardID: s.cardIDs[rand.Intn(len(s.cardIDs))],
 			UserID: s.userIDs[rand.Intn(len(s.userIDs))],
 			Text:   faker.Sentence(),
 		}
+	}
 
-		s.db.Create(&comment)
+	if err := s.db.Create(&comments).Error; err != nil {
+		panic(err)
 	}
 }
 

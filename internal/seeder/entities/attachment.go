@@ -1,6 +1,9 @@
 package entities
 
 import (
+	"fmt"
+	"log/slog"
+
 	"github.com/GregoryKogan/mephi-databases/internal/models"
 	"github.com/go-faker/faker/v4"
 	"golang.org/x/exp/rand"
@@ -22,13 +25,19 @@ func NewAttachmentSeeder(db *gorm.DB) AttachmentSeeder {
 }
 
 func (s *AttachmentSeederImpl) Seed(count uint) {
+	slog.Info(fmt.Sprintf("Seeding %d attachments", count))
+	defer slog.Info("Attachments seeded")
+
+	attachments := make([]models.Attachment, count)
 	for i := uint(0); i < count; i++ {
-		attachment := models.Attachment{
+		attachments[i] = models.Attachment{
 			CardID:  s.cardIDs[rand.Intn(len(s.cardIDs))],
 			FileURL: faker.URL(),
 		}
+	}
 
-		s.db.Create(&attachment)
+	if err := s.db.Create(&attachments).Error; err != nil {
+		panic(err)
 	}
 }
 

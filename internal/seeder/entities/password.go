@@ -2,6 +2,7 @@ package entities
 
 import (
 	"crypto/rand"
+	"fmt"
 	"log/slog"
 
 	"github.com/GregoryKogan/mephi-databases/internal/models"
@@ -23,25 +24,25 @@ func NewPasswordSeeder(db *gorm.DB) PasswordSeeder {
 }
 
 func (s *PasswordSeederImpl) Seed() {
-	slog.Info("Seeding passwords")
+	slog.Info(fmt.Sprintf("Seeding %d passwords", len(s.userIDs)))
+	defer slog.Info("Passwords seeded")
 
 	if len(s.userIDs) == 0 {
 		panic("userIDs are not set")
 	}
 
-	for _, userID := range s.userIDs {
-		for {
-			password := models.Password{
-				UserID:    userID,
-				Hash:      randomBytes(),
-				Salt:      randomBytes(),
-				Algorithm: "argon2id",
-			}
-
-			if err := s.db.Create(&password).Error; err == nil {
-				break
-			}
+	passwords := make([]models.Password, len(s.userIDs))
+	for i, userID := range s.userIDs {
+		passwords[i] = models.Password{
+			UserID:    userID,
+			Hash:      randomBytes(),
+			Salt:      randomBytes(),
+			Algorithm: "argon2id",
 		}
+	}
+
+	if err := s.db.Create(&passwords).Error; err != nil {
+		panic(err)
 	}
 }
 

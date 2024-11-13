@@ -28,20 +28,28 @@ func NewLabelSeeder(db *gorm.DB) LabelSeeder {
 
 func (s *LabelSeederImpl) Seed(count uint) {
 	slog.Info(fmt.Sprintf("Seeding %d labels", count))
+	defer slog.Info("Labels seeded")
 
 	if len(s.boardIDs) == 0 {
 		panic("boardIDs are not set")
 	}
 
+	labels := make([]models.Label, count)
 	for i := uint(0); i < count; i++ {
-		label := models.Label{
+		labels[i] = models.Label{
 			BoardID: s.boardIDs[rand.Intn(len(s.boardIDs))],
 			Title:   "Label " + faker.Word(),
 			Color:   randomHexColor(),
 		}
+	}
 
-		s.db.Create(&label)
-		s.ids = append(s.ids, label.ID)
+	if err := s.db.Create(&labels).Error; err != nil {
+		panic(err)
+	}
+
+	s.ids = make([]uint, count)
+	for i, label := range labels {
+		s.ids[i] = label.ID
 	}
 }
 

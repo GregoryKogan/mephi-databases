@@ -28,20 +28,28 @@ func NewListSeeder(db *gorm.DB) ListSeeder {
 
 func (s *ListSeederImpl) Seed(count uint) {
 	slog.Info(fmt.Sprintf("Seeding %d lists", count))
+	defer slog.Info("Lists seeded")
 
 	if len(s.boardIDs) == 0 {
 		panic("boardIDs are not set")
 	}
 
+	lists := make([]models.List, count)
 	for i := uint(0); i < count; i++ {
-		list := models.List{
+		lists[i] = models.List{
 			BoardID: s.boardIDs[rand.Intn(len(s.boardIDs))],
 			Title:   "List " + faker.Word(),
 			Order:   int(i),
 		}
+	}
 
-		s.db.Create(&list)
-		s.ids = append(s.ids, list.ID)
+	if err := s.db.Create(&lists).Error; err != nil {
+		panic(err)
+	}
+
+	s.ids = make([]uint, count)
+	for i, list := range lists {
+		s.ids[i] = list.ID
 	}
 }
 

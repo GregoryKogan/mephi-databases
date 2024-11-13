@@ -33,15 +33,22 @@ func (s *UserSeederImpl) Seed(count uint) {
 		panic("roleIDs are not set")
 	}
 
+	users := make([]models.User, count)
 	for i := uint(0); i < count; i++ {
-		user := models.User{
+		users[i] = models.User{
 			Username: faker.FirstName() + " " + faker.LastName(),
 			Email:    faker.Email(),
 			RoleID:   s.roleIDs[rand.Intn(len(s.roleIDs))],
 		}
+	}
 
-		s.db.Create(&user)
-		s.ids = append(s.ids, user.ID)
+	if err := s.db.Create(&users).Error; err != nil {
+		panic(err)
+	}
+
+	s.ids = make([]uint, count)
+	for i, user := range users {
+		s.ids[i] = user.ID
 	}
 }
 

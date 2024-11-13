@@ -9,18 +9,20 @@ services:
       context: .
       dockerfile: Dockerfile
     environment:
-      DSN: "host=database user=mephi password=mephi dbname=mephi-db port=5432 sslmode=disable TimeZone=Europe/Moscow"
+      DSN: "host=mephi-db user=mephi password=mephi dbname=mephi-db port=5432 sslmode=disable TimeZone=Europe/Moscow"
+    develop:
+      watch:
+        - action: rebuild
+          path: .
 
   database:
-    container_name: database
+    container_name: mephi-db
     image: postgres:latest
     restart: always
     environment:
       POSTGRES_PASSWORD: mephi
       POSTGRES_USER: mephi
       POSTGRES_DB: mephi-db
-    volumes:
-      - pgdata:/var/lib/postgresql/data
     ports:
       - 5432:5432
     healthcheck:
@@ -30,7 +32,7 @@ services:
       retries: 10
 
   pgadmin:
-    container_name: pgadmin
+    container_name: mephi-pgadmin
     image: dpage/pgadmin4:latest
     restart: unless-stopped
     depends_on:
@@ -47,5 +49,4 @@ services:
       - 5050:80
 
 volumes:
-  pgdata:
   pgadmin:

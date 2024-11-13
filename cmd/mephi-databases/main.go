@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/GregoryKogan/mephi-databases/internal/config"
 	"github.com/GregoryKogan/mephi-databases/internal/models"
 	"github.com/GregoryKogan/mephi-databases/internal/seeder"
 	"gorm.io/driver/postgres"
@@ -11,6 +12,8 @@ import (
 )
 
 func main() {
+	config.Init()
+
 	db, err := gorm.Open(postgres.New(postgres.Config{DSN: os.Getenv("DSN")}), &gorm.Config{})
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to connect to database: %v\n", err)

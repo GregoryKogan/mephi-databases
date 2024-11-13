@@ -1,6 +1,7 @@
 package entities
 
 import (
+	"fmt"
 	"log/slog"
 	"math/rand"
 
@@ -26,7 +27,7 @@ func NewListSeeder(db *gorm.DB) ListSeeder {
 }
 
 func (s *ListSeederImpl) Seed(count uint) {
-	slog.Info("Seeding lists")
+	slog.Info(fmt.Sprintf("Seeding %d lists", count))
 
 	if len(s.boardIDs) == 0 {
 		panic("boardIDs are not set")

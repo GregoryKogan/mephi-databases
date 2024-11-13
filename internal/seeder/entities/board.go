@@ -1,6 +1,7 @@
 package entities
 
 import (
+	"fmt"
 	"log/slog"
 
 	"github.com/GregoryKogan/mephi-databases/internal/models"
@@ -26,7 +27,7 @@ func NewBoardSeeder(db *gorm.DB) BoardSeeder {
 }
 
 func (s *BoardSeederImpl) Seed(count uint) {
-	slog.Info("Seeding boards")
+	slog.Info(fmt.Sprintf("Seeding %d boards", count))
 
 	for i := uint(0); i < count; i++ {
 		board := models.Board{

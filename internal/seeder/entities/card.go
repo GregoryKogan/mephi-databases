@@ -1,6 +1,7 @@
 package entities
 
 import (
+	"fmt"
 	"log/slog"
 
 	"github.com/GregoryKogan/mephi-databases/internal/models"
@@ -26,7 +27,7 @@ func NewCardSeeder(db *gorm.DB) CardSeeder {
 }
 
 func (s *CardSeederImpl) Seed(count uint) {
-	slog.Info("Seeding cards")
+	slog.Info(fmt.Sprintf("Seeding %d cards", count))
 
 	if len(s.listIDs) == 0 {
 		panic("listIDs are not set")

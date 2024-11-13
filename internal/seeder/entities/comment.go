@@ -1,6 +1,9 @@
 package entities
 
 import (
+	"fmt"
+	"log/slog"
+
 	"github.com/GregoryKogan/mephi-databases/internal/models"
 	"github.com/go-faker/faker/v4"
 	"golang.org/x/exp/rand"
@@ -24,6 +27,8 @@ func NewCommentSeeder(db *gorm.DB) CommentSeeder {
 }
 
 func (s *CommentSeederImpl) Seed(count uint) {
+	slog.Info(fmt.Sprintf("Seeding %d comments", count))
+
 	for i := uint(0); i < count; i++ {
 		comment := models.Comment{
 			CardID: s.cardIDs[rand.Intn(len(s.cardIDs))],

@@ -1,6 +1,8 @@
 package entities
 
 import (
+	"fmt"
+	"log/slog"
 	"math/rand"
 
 	"github.com/GregoryKogan/mephi-databases/internal/models"
@@ -26,6 +28,8 @@ func NewBoardMemberSeeder(db *gorm.DB) BoardMemberSeeder {
 }
 
 func (s *BoardMemberSeederImpl) Seed(count uint) {
+	slog.Info(fmt.Sprintf("Seeding %d board members", count))
+
 	if len(s.boardIDs) == 0 || len(s.userIDs) == 0 || len(s.boardRoleIDs) == 0 {
 		panic("boardIDs, userIDs or boardRoleIDs are not set")
 	}

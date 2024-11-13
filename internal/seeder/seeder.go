@@ -4,6 +4,7 @@ import (
 	"log/slog"
 
 	"github.com/GregoryKogan/mephi-databases/internal/seeder/entities"
+	"github.com/spf13/viper"
 	"gorm.io/gorm"
 )
 
@@ -50,34 +51,34 @@ func (s *SeederImpl) Seed() {
 	s.boardRoleSeeder.Seed()
 
 	s.userSeeder.SetRoleIDs(s.roleSeeder.GetIDs())
-	s.userSeeder.Seed(10)
+	s.userSeeder.Seed(viper.GetUint("seeder.users"))
 
 	s.passwordSeeder.SetUserIDs(s.userSeeder.GetIDs())
 	s.passwordSeeder.Seed()
 
 	s.boardSeeder.SetUserIDs(s.userSeeder.GetIDs())
-	s.boardSeeder.Seed(10)
+	s.boardSeeder.Seed(viper.GetUint("seeder.boards"))
 
 	s.listSeeder.SetBoardIDs(s.boardSeeder.GetIDs())
-	s.listSeeder.Seed(10)
+	s.listSeeder.Seed(viper.GetUint("seeder.lists"))
 
 	s.cardSeeder.SetListIDs(s.listSeeder.GetIDs())
-	s.cardSeeder.Seed(10)
+	s.cardSeeder.Seed(viper.GetUint("seeder.cards"))
 
 	s.labelSeeder.SetBoardIDs(s.boardSeeder.GetIDs())
-	s.labelSeeder.Seed(10)
+	s.labelSeeder.Seed(viper.GetUint("seeder.labels"))
 
 	s.commentSeeder.SetCardIDs(s.cardSeeder.GetIDs())
 	s.commentSeeder.SetUserIDs(s.userSeeder.GetIDs())
-	s.commentSeeder.Seed(10)
+	s.commentSeeder.Seed(viper.GetUint("seeder.comments"))
 
 	s.boardMemberSeeder.SetBoardIDs(s.boardSeeder.GetIDs())
 	s.boardMemberSeeder.SetUserIDs(s.userSeeder.GetIDs())
 	s.boardMemberSeeder.SetBoardRoleIDs(s.boardRoleSeeder.GetIDs())
-	s.boardMemberSeeder.Seed(10)
+	s.boardMemberSeeder.Seed(viper.GetUint("seeder.board_members"))
 
 	s.attachmentSeeder.SetCardIDs(s.cardSeeder.GetIDs())
-	s.attachmentSeeder.Seed(10)
+	s.attachmentSeeder.Seed(viper.GetUint("seeder.attachments"))
 
 	slog.Info("Seeding complete")
 }

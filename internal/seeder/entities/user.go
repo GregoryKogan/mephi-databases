@@ -1,6 +1,7 @@
 package entities
 
 import (
+	"fmt"
 	"log/slog"
 
 	"github.com/GregoryKogan/mephi-databases/internal/models"
@@ -26,7 +27,7 @@ func NewUserSeeder(db *gorm.DB) UserSeeder {
 }
 
 func (s *UserSeederImpl) Seed(count uint) {
-	slog.Info("Seeding users")
+	slog.Info(fmt.Sprintf("Seeding %d users", count))
 
 	if len(s.roleIDs) == 0 {
 		panic("roleIDs are not set")

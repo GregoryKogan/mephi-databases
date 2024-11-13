@@ -1,0 +1,9 @@
+seeder:
+  users: 1000
+  boards: 100
+  lists: 100
+  cards: 1000
+  labels: 1000
+  comments: 1000
+  attachments: 1000
+  board_members: 1000

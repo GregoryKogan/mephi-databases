@@ -20,6 +20,7 @@ type SeederImpl struct {
 	boardSeeder     entities.BoardSeeder
 	listSeeder      entities.ListSeeder
 	cardSeeder      entities.CardSeeder
+	labelSeeder     entities.LabelSeeder
 }
 
 func NewSeeder(db *gorm.DB) Seeder {
@@ -32,6 +33,7 @@ func NewSeeder(db *gorm.DB) Seeder {
 		boardSeeder:     entities.NewBoardSeeder(db),
 		listSeeder:      entities.NewListSeeder(db),
 		cardSeeder:      entities.NewCardSeeder(db),
+		labelSeeder:     entities.NewLabelSeeder(db),
 	}
 }
 
@@ -56,16 +58,20 @@ func (s *SeederImpl) Seed() {
 	s.cardSeeder.SetListIDs(s.listSeeder.GetIDs())
 	s.cardSeeder.Seed(10)
 
+	s.labelSeeder.SetBoardIDs(s.boardSeeder.GetIDs())
+	s.labelSeeder.Seed(10)
+
 	slog.Info("Seeding complete")
 }
 
 func (s *SeederImpl) deleteAll() {
 	slog.Info("Deleting all data")
 	s.db.Exec("DELETE FROM passwords")
+	s.db.Exec("DELETE FROM labels")
+	s.db.Exec("DELETE FROM cards")
 	s.db.Exec("DELETE FROM lists")
 	s.db.Exec("DELETE FROM boards")
 	s.db.Exec("DELETE FROM users")
 	s.db.Exec("DELETE FROM roles")
 	s.db.Exec("DELETE FROM board_roles")
-	s.db.Exec("DELETE FROM cards")
 }

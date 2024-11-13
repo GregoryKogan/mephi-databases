@@ -13,6 +13,7 @@ import (
 type CardSeeder interface {
 	Seed(count uint)
 	GetIDs() []uint
+	GetCount() float64
 	SetListIDs([]uint)
 }
 
@@ -56,6 +57,10 @@ func (s *CardSeederImpl) Seed(count uint) {
 
 func (s *CardSeederImpl) GetIDs() []uint {
 	return s.ids
+}
+
+func (s *CardSeederImpl) GetCount() float64 {
+	return float64(len(s.ids))
 }
 
 func (s *CardSeederImpl) SetListIDs(ids []uint) {

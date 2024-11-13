@@ -13,6 +13,7 @@ import (
 type ListSeeder interface {
 	Seed(count uint)
 	GetIDs() []uint
+	GetCount() float64
 	SetBoardIDs([]uint)
 }
 
@@ -55,6 +56,10 @@ func (s *ListSeederImpl) Seed(count uint) {
 
 func (s *ListSeederImpl) GetIDs() []uint {
 	return s.ids
+}
+
+func (s *ListSeederImpl) GetCount() float64 {
+	return float64(len(s.ids))
 }
 
 func (s *ListSeederImpl) SetBoardIDs(ids []uint) {

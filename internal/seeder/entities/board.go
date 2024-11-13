@@ -14,6 +14,7 @@ type BoardSeeder interface {
 	Seed(count uint)
 	GetIDs() []uint
 	SetUserIDs([]uint)
+	GetCount() float64
 }
 
 type BoardSeederImpl struct {
@@ -51,6 +52,10 @@ func (s *BoardSeederImpl) Seed(count uint) {
 
 func (s *BoardSeederImpl) GetIDs() []uint {
 	return s.ids
+}
+
+func (s *BoardSeederImpl) GetCount() float64 {
+	return float64(len(s.ids))
 }
 
 func (s *BoardSeederImpl) SetUserIDs(ids []uint) {

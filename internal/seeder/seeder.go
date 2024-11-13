@@ -63,80 +63,133 @@ func (s *SeederImpl) Seed() {
 		slog.Info("Seeding finished", slog.Duration("duration", time.Since(startTime)))
 	}()
 
-	var wg sync.WaitGroup
+	// Seed roles and users
+	s.seedRoles()
+	s.seedUsers()
 
+	// Seed passwords and boards concurrently
+	var wg sync.WaitGroup
+	wg.Add(2)
+	go func() {
+		defer wg.Done()
+		s.seedPasswords()
+	}()
+	go func() {
+		defer wg.Done()
+		s.seedBoards()
+	}()
+	wg.Wait()
+
+	// Seed labels, board members, and lists concurrently
+	wg.Add(3)
+	go func() {
+		defer wg.Done()
+		s.seedLabels()
+	}()
+	go func() {
+		defer wg.Done()
+		s.seedBoardMembers()
+	}()
+	go func() {
+		defer wg.Done()
+		s.seedLists()
+	}()
+	wg.Wait()
+
+	// Seed cards
+	s.seedCards()
+
+	// Seed comments, attachments, and card relations concurrently
+	wg.Add(3)
+	go func() {
+		defer wg.Done()
+		s.seedComments()
+	}()
+	go func() {
+		defer wg.Done()
+		s.seedAttachments()
+	}()
+	go func() {
+		defer wg.Done()
+		s.seedCardRelations()
+	}()
+	wg.Wait()
+}
+
+func (s *SeederImpl) seedRoles() {
 	s.roleSeeder.Seed()
 	s.boardRoleSeeder.Seed()
+}
 
+func (s *SeederImpl) seedUsers() {
 	userCount := viper.GetFloat64("seeder.entities.users")
 	s.userSeeder.SetRoleIDs(s.roleSeeder.GetIDs())
 	s.userSeeder.Seed(uint(userCount))
+}
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		s.passwordSeeder.SetUserIDs(s.userSeeder.GetIDs())
-		s.passwordSeeder.Seed()
-	}()
+func (s *SeederImpl) seedPasswords() {
+	s.passwordSeeder.SetUserIDs(s.userSeeder.GetIDs())
+	s.passwordSeeder.Seed()
+}
 
-	boardCount := userCount * viper.GetFloat64("seeder.entities.boards_per_user")
+func (s *SeederImpl) seedBoards() {
+	boardCount := viper.GetFloat64("seeder.entities.boards_per_user") * viper.GetFloat64("seeder.entities.users")
 	s.boardSeeder.SetUserIDs(s.userSeeder.GetIDs())
 	s.boardSeeder.Seed(uint(boardCount))
+}
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		labelCount := boardCount * viper.GetFloat64("seeder.entities.labels_per_board")
-		s.labelSeeder.SetBoardIDs(s.boardSeeder.GetIDs())
-		s.labelSeeder.Seed(uint(labelCount))
-	}()
+func (s *SeederImpl) seedLabels() {
+	labelCount := viper.GetFloat64("seeder.entities.labels_per_board") * s.boardSeeder.GetCount()
+	s.labelSeeder.SetBoardIDs(s.boardSeeder.GetIDs())
+	s.labelSeeder.Seed(uint(labelCount))
+}
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		boardMemberCount := boardCount * viper.GetFloat64("seeder.entities.board_members_per_board")
-		s.boardMemberSeeder.SetBoardIDs(s.boardSeeder.GetIDs())
-		s.boardMemberSeeder.SetUserIDs(s.userSeeder.GetIDs())
-		s.boardMemberSeeder.SetBoardRoleIDs(s.boardRoleSeeder.GetIDs())
-		s.boardMemberSeeder.Seed(uint(boardMemberCount))
-	}()
+func (s *SeederImpl) seedBoardMembers() {
+	boardMemberCount := viper.GetFloat64("seeder.entities.board_members_per_board") * s.boardSeeder.GetCount()
+	s.boardMemberSeeder.SetBoardIDs(s.boardSeeder.GetIDs())
+	s.boardMemberSeeder.SetUserIDs(s.userSeeder.GetIDs())
+	s.boardMemberSeeder.SetBoardRoleIDs(s.boardRoleSeeder.GetIDs())
+	s.boardMemberSeeder.Seed(uint(boardMemberCount))
+}
 
-	listCount := boardCount * viper.GetFloat64("seeder.entities.lists_per_board")
+func (s *SeederImpl) seedLists() {
+	listCount := viper.GetFloat64("seeder.entities.lists_per_board") * s.boardSeeder.GetCount()
 	s.listSeeder.SetBoardIDs(s.boardSeeder.GetIDs())
 	s.listSeeder.Seed(uint(listCount))
+}
 
-	cardCount := listCount * viper.GetFloat64("seeder.entities.cards_per_list")
+func (s *SeederImpl) seedCards() {
+	cardCount := viper.GetFloat64("seeder.entities.cards_per_list") * s.listSeeder.GetCount()
 	s.cardSeeder.SetListIDs(s.listSeeder.GetIDs())
 	s.cardSeeder.Seed(uint(cardCount))
+}
 
-	wg.Add(1)
+func (s *SeederImpl) seedComments() {
+	commentCount := viper.GetFloat64("seeder.entities.comments_per_card") * s.cardSeeder.GetCount()
+	s.commentSeeder.SetCardIDs(s.cardSeeder.GetIDs())
+	s.commentSeeder.SetUserIDs(s.userSeeder.GetIDs())
+	s.commentSeeder.Seed(uint(commentCount))
+}
+
+func (s *SeederImpl) seedAttachments() {
+	attachmentCount := viper.GetFloat64("seeder.entities.attachments_per_card") * s.cardSeeder.GetCount()
+	s.attachmentSeeder.SetCardIDs(s.cardSeeder.GetIDs())
+	s.attachmentSeeder.Seed(uint(attachmentCount))
+}
+
+func (s *SeederImpl) seedCardRelations() {
+	var wg sync.WaitGroup
+	wg.Add(2)
+
 	go func() {
 		defer wg.Done()
-		commentCount := cardCount * viper.GetFloat64("seeder.entities.comments_per_card")
-		s.commentSeeder.SetCardIDs(s.cardSeeder.GetIDs())
-		s.commentSeeder.SetUserIDs(s.userSeeder.GetIDs())
-		s.commentSeeder.Seed(uint(commentCount))
-	}()
-
-	wg.Wait()
-	wg.Add(3)
-
-	go func() {
-		defer wg.Done()
-		attachmentCount := cardCount * viper.GetFloat64("seeder.entities.attachments_per_card")
-		s.attachmentSeeder.SetCardIDs(s.cardSeeder.GetIDs())
-		s.attachmentSeeder.Seed(uint(attachmentCount))
-	}()
-
-	go func() {
-		defer wg.Done()
-		cardLabelCount := cardCount * viper.GetFloat64("seeder.entities.card_labels_per_card")
+		cardLabelCount := viper.GetFloat64("seeder.entities.card_labels_per_card") * s.cardSeeder.GetCount()
 		s.cardLabelSeeder.Seed(uint(cardLabelCount))
 	}()
 
 	go func() {
 		defer wg.Done()
-		cardAssigneeCount := cardCount * viper.GetFloat64("seeder.entities.card_assignees_per_card")
+		cardAssigneeCount := viper.GetFloat64("seeder.entities.card_assignees_per_card") * s.cardSeeder.GetCount()
 		s.cardAssigneeSeeder.Seed(uint(cardAssigneeCount))
 	}()
 

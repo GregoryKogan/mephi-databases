@@ -7,3 +7,4 @@ seeder:
   comments: 1000
   attachments: 1000
   board_members: 1000
+  card_labels: 1000

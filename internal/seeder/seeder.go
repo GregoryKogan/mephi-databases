@@ -25,6 +25,7 @@ type SeederImpl struct {
 	commentSeeder     entities.CommentSeeder
 	boardMemberSeeder entities.BoardMemberSeeder
 	attachmentSeeder  entities.AttachmentSeeder
+	cardLabelSeeder   entities.CardLabelSeeder
 }
 
 func NewSeeder(db *gorm.DB) Seeder {
@@ -41,6 +42,7 @@ func NewSeeder(db *gorm.DB) Seeder {
 		commentSeeder:     entities.NewCommentSeeder(db),
 		boardMemberSeeder: entities.NewBoardMemberSeeder(db),
 		attachmentSeeder:  entities.NewAttachmentSeeder(db),
+		cardLabelSeeder:   entities.NewCardLabelSeeder(db),
 	}
 }
 
@@ -79,6 +81,8 @@ func (s *SeederImpl) Seed() {
 
 	s.attachmentSeeder.SetCardIDs(s.cardSeeder.GetIDs())
 	s.attachmentSeeder.Seed(viper.GetUint("seeder.attachments"))
+
+	s.cardLabelSeeder.Seed(viper.GetUint("seeder.card_labels"))
 
 	slog.Info("Seeding complete")
 }

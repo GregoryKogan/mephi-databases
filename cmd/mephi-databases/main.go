@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/GregoryKogan/mephi-databases/internal/models"
+	"github.com/GregoryKogan/mephi-databases/internal/seeder"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -13,7 +14,7 @@ func main() {
 	db, err := gorm.Open(postgres.New(postgres.Config{DSN: os.Getenv("DSN")}), &gorm.Config{})
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to connect to database: %v\n", err)
-		os.Exit(1)
+		panic(err)
 	}
 
 	// Migrate all models
@@ -31,6 +32,10 @@ func main() {
 		&models.Attachment{},
 	); err != nil {
 		fmt.Fprintf(os.Stderr, "failed to migrate database: %v\n", err)
-		os.Exit(1)
+		panic(err)
 	}
+
+	// Seed database
+	s := seeder.NewSeeder(db)
+	s.Seed()
 }

@@ -12,30 +12,32 @@ type Seeder interface {
 }
 
 type SeederImpl struct {
-	db              *gorm.DB
-	roleSeeder      entities.RoleSeeder
-	boardRoleSeeder entities.BoardRoleSeeder
-	userSeeder      entities.UserSeeder
-	passwordSeeder  entities.PasswordSeeder
-	boardSeeder     entities.BoardSeeder
-	listSeeder      entities.ListSeeder
-	cardSeeder      entities.CardSeeder
-	labelSeeder     entities.LabelSeeder
-	commentSeeder   entities.CommentSeeder
+	db                *gorm.DB
+	roleSeeder        entities.RoleSeeder
+	boardRoleSeeder   entities.BoardRoleSeeder
+	userSeeder        entities.UserSeeder
+	passwordSeeder    entities.PasswordSeeder
+	boardSeeder       entities.BoardSeeder
+	listSeeder        entities.ListSeeder
+	cardSeeder        entities.CardSeeder
+	labelSeeder       entities.LabelSeeder
+	commentSeeder     entities.CommentSeeder
+	boardMemberSeeder entities.BoardMemberSeeder
 }
 
 func NewSeeder(db *gorm.DB) Seeder {
 	return &SeederImpl{
-		db:              db,
-		roleSeeder:      entities.NewRoleSeeder(db),
-		boardRoleSeeder: entities.NewBoardRoleSeeder(db),
-		userSeeder:      entities.NewUserSeeder(db),
-		passwordSeeder:  entities.NewPasswordSeeder(db),
-		boardSeeder:     entities.NewBoardSeeder(db),
-		listSeeder:      entities.NewListSeeder(db),
-		cardSeeder:      entities.NewCardSeeder(db),
-		labelSeeder:     entities.NewLabelSeeder(db),
-		commentSeeder:   entities.NewCommentSeeder(db),
+		db:                db,
+		roleSeeder:        entities.NewRoleSeeder(db),
+		boardRoleSeeder:   entities.NewBoardRoleSeeder(db),
+		userSeeder:        entities.NewUserSeeder(db),
+		passwordSeeder:    entities.NewPasswordSeeder(db),
+		boardSeeder:       entities.NewBoardSeeder(db),
+		listSeeder:        entities.NewListSeeder(db),
+		cardSeeder:        entities.NewCardSeeder(db),
+		labelSeeder:       entities.NewLabelSeeder(db),
+		commentSeeder:     entities.NewCommentSeeder(db),
+		boardMemberSeeder: entities.NewBoardMemberSeeder(db),
 	}
 }
 
@@ -67,6 +69,11 @@ func (s *SeederImpl) Seed() {
 	s.commentSeeder.SetUserIDs(s.userSeeder.GetIDs())
 	s.commentSeeder.Seed(10)
 
+	s.boardMemberSeeder.SetBoardIDs(s.boardSeeder.GetIDs())
+	s.boardMemberSeeder.SetUserIDs(s.userSeeder.GetIDs())
+	s.boardMemberSeeder.SetBoardRoleIDs(s.boardRoleSeeder.GetIDs())
+	s.boardMemberSeeder.Seed(10)
+
 	slog.Info("Seeding complete")
 }
 
@@ -74,6 +81,7 @@ func (s *SeederImpl) deleteAll() {
 	slog.Info("Deleting all data")
 	s.db.Exec("DELETE FROM passwords")
 	s.db.Exec("DELETE FROM comments")
+	s.db.Exec("DELETE FROM board_members")
 	s.db.Exec("DELETE FROM labels")
 	s.db.Exec("DELETE FROM cards")
 	s.db.Exec("DELETE FROM lists")

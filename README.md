@@ -3,7 +3,7 @@
 Laboratory work on the database course at MEPhI.  
 Topic: Trello
 
-This project is built in Go and uses [GORM](https://gorm.io/) as an ORM for PostgreSQL.
+This project is built in Go, uses [GORM](https://gorm.io/) as an ORM for PostgreSQL and [faker](https://pkg.go.dev/github.com/go-faker/faker/v4) package to seed the database.
 
 <details>
   <summary>Entity-relationship diagram</summary>

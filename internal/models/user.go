@@ -6,8 +6,8 @@ import (
 
 type User struct {
 	gorm.Model
-	Username      string `gorm:"unique;not null"`
-	Email         string `gorm:"unique;not null"`
+	Username      string `gorm:"unique;not null" faker:"username"`
+	Email         string `gorm:"unique;not null" faker:"email"`
 	RoleID        uint
 	Role          Role `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
 	Password      Password

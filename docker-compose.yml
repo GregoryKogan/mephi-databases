@@ -13,18 +13,24 @@ services:
     develop:
       watch:
         - action: rebuild
-          path: .
+          path: ./cmd
+        - action: rebuild
+          path: ./internal
+        - action: rebuild
+          path: ./config.yml
 
   database:
     container_name: mephi-db
     image: postgres:latest
-    restart: always
+    restart: no
     environment:
       POSTGRES_PASSWORD: mephi
       POSTGRES_USER: mephi
       POSTGRES_DB: mephi-db
     ports:
       - 5432:5432
+    volumes:
+      - ./docker/pgdata:/var/lib/postgresql/data
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
       interval: 1s
@@ -44,9 +50,9 @@ services:
       PGADMIN_CONFIG_SERVER_MODE: 'False'
       GUNICORN_ACCESS_LOGFILE: /dev/null
     volumes:
-      - pgadmin:/var/lib/pgadmin
+      - ./docker/pgadmin:/var/lib/pgadmin
     ports:
       - 5050:80
 
 volumes:
-  pgadmin:
+  mephi-pgadmin:

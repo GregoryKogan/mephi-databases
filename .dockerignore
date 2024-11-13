@@ -1,0 +1,20 @@
+# Ignore the Visual Studio Code settings directory
+.vscode/
+
+# Ignore Go build artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Ignore Go workspace file
+go.work
+
+# Ignore MacOS specific files
+.DS_Store
+
+# Ignore dependency directories
+vendor/

@@ -14,6 +14,9 @@ RUN go mod download
 COPY cmd ./cmd
 COPY internal ./internal
 
+# Copy the config file
+COPY config.yml .
+
 # Build the Go app
 RUN go build -o /mephi-databases ./cmd/mephi-databases
 

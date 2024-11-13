@@ -1,7 +1,8 @@
 services:
   app:
-    container_name: mephi-databases-app
+    container_name: mephi-db-seeder
     restart: no
+    profiles: [ seed ]
     depends_on:
       database:
         condition: service_healthy
@@ -10,14 +11,6 @@ services:
       dockerfile: Dockerfile
     environment:
       DSN: "host=mephi-db user=mephi password=mephi dbname=mephi-db port=5432 sslmode=disable TimeZone=Europe/Moscow"
-    develop:
-      watch:
-        - action: rebuild
-          path: ./cmd
-        - action: rebuild
-          path: ./internal
-        - action: rebuild
-          path: ./config.yml
 
   database:
     container_name: mephi-db

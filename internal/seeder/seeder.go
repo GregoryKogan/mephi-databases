@@ -3,6 +3,7 @@ package seeder
 import (
 	"log/slog"
 
+	"github.com/GregoryKogan/mephi-databases/internal/models"
 	"github.com/GregoryKogan/mephi-databases/internal/seeder/entities"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
@@ -49,60 +50,95 @@ func NewSeeder(db *gorm.DB) Seeder {
 }
 
 func (s *SeederImpl) Seed() {
-	s.deleteAll()
+	s.prepare()
 
 	s.roleSeeder.Seed()
 	s.boardRoleSeeder.Seed()
 
+	userCount := viper.GetFloat64("seeder.users")
 	s.userSeeder.SetRoleIDs(s.roleSeeder.GetIDs())
-	s.userSeeder.Seed(viper.GetUint("seeder.users"))
-
+	s.userSeeder.Seed(uint(userCount))
 	s.passwordSeeder.SetUserIDs(s.userSeeder.GetIDs())
 	s.passwordSeeder.Seed()
 
+	boardCount := userCount * viper.GetFloat64("seeder.boards_per_user")
 	s.boardSeeder.SetUserIDs(s.userSeeder.GetIDs())
-	s.boardSeeder.Seed(viper.GetUint("seeder.boards"))
+	s.boardSeeder.Seed(uint(boardCount))
 
+	listCount := boardCount * viper.GetFloat64("seeder.lists_per_board")
 	s.listSeeder.SetBoardIDs(s.boardSeeder.GetIDs())
-	s.listSeeder.Seed(viper.GetUint("seeder.lists"))
+	s.listSeeder.Seed(uint(listCount))
 
+	cardCount := listCount * viper.GetFloat64("seeder.cards_per_list")
 	s.cardSeeder.SetListIDs(s.listSeeder.GetIDs())
-	s.cardSeeder.Seed(viper.GetUint("seeder.cards"))
+	s.cardSeeder.Seed(uint(cardCount))
 
+	labelCount := boardCount * viper.GetFloat64("seeder.labels_per_board")
 	s.labelSeeder.SetBoardIDs(s.boardSeeder.GetIDs())
-	s.labelSeeder.Seed(viper.GetUint("seeder.labels"))
+	s.labelSeeder.Seed(uint(labelCount))
 
+	commentCount := cardCount * viper.GetFloat64("seeder.comments_per_card")
 	s.commentSeeder.SetCardIDs(s.cardSeeder.GetIDs())
 	s.commentSeeder.SetUserIDs(s.userSeeder.GetIDs())
-	s.commentSeeder.Seed(viper.GetUint("seeder.comments"))
+	s.commentSeeder.Seed(uint(commentCount))
 
+	boardMemberCount := boardCount * viper.GetFloat64("seeder.board_members_per_board")
 	s.boardMemberSeeder.SetBoardIDs(s.boardSeeder.GetIDs())
 	s.boardMemberSeeder.SetUserIDs(s.userSeeder.GetIDs())
 	s.boardMemberSeeder.SetBoardRoleIDs(s.boardRoleSeeder.GetIDs())
-	s.boardMemberSeeder.Seed(viper.GetUint("seeder.board_members"))
+	s.boardMemberSeeder.Seed(uint(boardMemberCount))
 
+	attachmentCount := cardCount * viper.GetFloat64("seeder.attachments_per_card")
 	s.attachmentSeeder.SetCardIDs(s.cardSeeder.GetIDs())
-	s.attachmentSeeder.Seed(viper.GetUint("seeder.attachments"))
+	s.attachmentSeeder.Seed(uint(attachmentCount))
 
-	s.cardLabelSeeder.Seed(viper.GetUint("seeder.card_labels"))
-	s.cardAssigneeSeeder.Seed(viper.GetUint("seeder.card_assignees"))
+	cardLabelCount := cardCount * viper.GetFloat64("seeder.card_labels_per_card")
+	s.cardLabelSeeder.Seed(uint(cardLabelCount))
+
+	cardAssigneeCount := cardCount * viper.GetFloat64("seeder.card_assignees_per_card")
+	s.cardAssigneeSeeder.Seed(uint(cardAssigneeCount))
 
 	slog.Info("Seeding complete")
 }
 
-func (s *SeederImpl) deleteAll() {
-	slog.Info("Deleting all data")
-	s.db.Exec("DELETE FROM passwords")
-	s.db.Exec("DELETE FROM card_assignees")
-	s.db.Exec("DELETE FROM card_labels")
-	s.db.Exec("DELETE FROM attachments")
-	s.db.Exec("DELETE FROM comments")
-	s.db.Exec("DELETE FROM board_members")
-	s.db.Exec("DELETE FROM labels")
-	s.db.Exec("DELETE FROM cards")
-	s.db.Exec("DELETE FROM lists")
-	s.db.Exec("DELETE FROM boards")
-	s.db.Exec("DELETE FROM users")
-	s.db.Exec("DELETE FROM roles")
-	s.db.Exec("DELETE FROM board_roles")
+func (s *SeederImpl) prepare() {
+	slog.Info("Preparing database")
+	s.dropAll()
+	s.migrateAll()
+}
+
+func (s *SeederImpl) dropAll() {
+	slog.Info("Dropping old tables")
+	tables, err := s.db.Migrator().GetTables()
+	if err != nil {
+		slog.Error("failed to get tables", slog.Any("error", err))
+		panic(err)
+	}
+	for _, table := range tables {
+		if err := s.db.Migrator().DropTable(table); err != nil {
+			slog.Error("failed to drop table", slog.Any("table", table), slog.Any("error", err))
+			panic(err)
+		}
+	}
+	slog.Info("Tables dropped", slog.Any("tables", tables))
+}
+
+func (s *SeederImpl) migrateAll() {
+	slog.Info("Migrating models")
+	if err := s.db.AutoMigrate(
+		&models.User{},
+		&models.Password{},
+		&models.Role{},
+		&models.Board{},
+		&models.BoardMember{},
+		&models.BoardRole{},
+		&models.List{},
+		&models.Card{},
+		&models.Label{},
+		&models.Comment{},
+		&models.Attachment{},
+	); err != nil {
+		slog.Error("failed to migrate models", slog.Any("error", err))
+		panic(err)
+	}
 }

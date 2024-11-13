@@ -1,11 +1,12 @@
 seeder:
-  users: 1000
-  boards: 100
-  lists: 100
-  cards: 1000
-  labels: 1000
-  comments: 1000
-  attachments: 1000
-  board_members: 1000
-  card_labels: 1000
-  card_assignees: 1000
+  users: 500
+  # Average ratios of entities
+  boards_per_user: 3 # 3x users
+  lists_per_board: 3 # 9x users
+  cards_per_list: 2 # 18x users
+  labels_per_board: 10 # 30x users
+  comments_per_card: 0.5 # 9x users
+  attachments_per_card: 0.33 # 6x users
+  board_members_per_board: 10 # 30x users
+  card_labels_per_card: 1.5 # 27x users
+  card_assignees_per_card: 1.5 # 27x users

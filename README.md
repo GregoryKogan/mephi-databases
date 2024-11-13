@@ -64,16 +64,13 @@ PgAdmin will be available at `http://localhost:5050`.
 
 Credentials to connect to the database:
 
-```
-
+```plaintext
 Host name/address: database
 Port: 5432
 Username: mephi
 Password: mephi
-
 ```
 
 <p align="center">
   <img src=https://github.com/user-attachments/assets/a5863b47-0bed-446a-bddd-651acd1dd367 width=50% />
 </p>
-```

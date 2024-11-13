@@ -5,6 +5,7 @@ import (
 	"log/slog"
 
 	"github.com/GregoryKogan/mephi-databases/internal/models"
+	"golang.org/x/exp/rand"
 	"gorm.io/gorm"
 )
 
@@ -24,22 +25,29 @@ func (s *CardLabelSeederImpl) Seed(count uint) {
 	slog.Info(fmt.Sprintf("Seeding %d card labels", count))
 
 	for created := uint(0); created < count; {
+		// pick a random board
+		board := models.Board{}
+		if err := s.db.Model(&models.Board{}).Order("RANDOM()").Preload("Labels").Preload("Lists.Cards.Labels").First(&board).Error; err != nil {
+			continue
+		}
+
+		// pick a random label from board.Labels
+		if len(board.Labels) == 0 {
+			continue
+		}
+		label := board.Labels[rand.Intn(len(board.Labels))]
+
+		// combine cards from all lists
+		var cards []models.Card
+		for _, list := range board.Lists {
+			cards = append(cards, list.Cards...)
+		}
+
 		// pick a random card
-		card := models.Card{}
-		if err := s.db.Model(&models.Card{}).Order("RANDOM()").First(&card).Error; err != nil {
+		if len(cards) == 0 {
 			continue
 		}
-
-		list := models.List{}
-		if err := s.db.First(&list, card.ListID).Error; err != nil {
-			continue
-		}
-
-		// pick a random label from same board
-		label := models.Label{}
-		if err := s.db.Model(&models.Label{}).Where("board_id = ?", list.BoardID).Order("RANDOM()").First(&label).Error; err != nil {
-			continue
-		}
+		card := cards[rand.Intn(len(cards))]
 
 		// check if label is already assigned to card
 		alreadyAssigned := false
@@ -49,12 +57,15 @@ func (s *CardLabelSeederImpl) Seed(count uint) {
 				break
 			}
 		}
+
 		if alreadyAssigned {
 			continue
 		}
 
 		// assign label to card
-		if err := s.db.Model(&card).Association("Labels").Append(&label); err != nil {
+		card.Labels = append(card.Labels, label)
+
+		if err := s.db.Save(&card).Error; err != nil {
 			continue
 		}
 

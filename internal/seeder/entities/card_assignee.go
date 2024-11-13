@@ -5,6 +5,7 @@ import (
 	"log/slog"
 
 	"github.com/GregoryKogan/mephi-databases/internal/models"
+	"golang.org/x/exp/rand"
 	"gorm.io/gorm"
 )
 
@@ -24,42 +25,53 @@ func (s *CardAssigneeSeederImpl) Seed(count uint) {
 	slog.Info(fmt.Sprintf("Seeding %d card assignees", count))
 
 	for created := uint(0); created < count; {
+		// pick a random board
+		board := models.Board{}
+		if err := s.db.Model(&models.Board{}).Order("RANDOM()").Preload("Members").Preload("Lists.Cards.Assignees").First(&board).Error; err != nil {
+			continue
+		}
+
+		// combine cards from all lists and filter out cards that already have member as assignee
+		var cards []models.Card
+		for _, list := range board.Lists {
+			cards = append(cards, list.Cards...)
+		}
+
 		// pick a random card
-		card := models.Card{}
-		if err := s.db.Model(&models.Card{}).Order("RANDOM()").First(&card).Error; err != nil {
+		if len(cards) == 0 {
 			continue
 		}
+		card := cards[rand.Intn(len(cards))]
 
-		list := models.List{}
-		if err := s.db.First(&list, card.ListID).Error; err != nil {
-			continue
-		}
-
-		// pick a random user from same board
-		boardMember := models.BoardMember{}
-		if err := s.db.Model(&models.BoardMember{}).Where("board_id = ?", list.BoardID).Order("RANDOM()").First(&boardMember).Error; err != nil {
-			continue
-		}
-
-		// check if user is already assigned to card
-		alreadyAssigned := false
-		for _, u := range card.Assignees {
-			if u.ID == boardMember.UserID {
-				alreadyAssigned = true
-				break
+		// filter out members that are not already assigned to card
+		var members []models.BoardMember
+		for _, member := range board.Members {
+			alreadyAssigned := false
+			for _, assignee := range card.Assignees {
+				if member.UserID == assignee.ID {
+					alreadyAssigned = true
+					break
+				}
+			}
+			if !alreadyAssigned {
+				members = append(members, member)
 			}
 		}
-		if alreadyAssigned {
+
+		// pick a random member
+		if len(members) == 0 {
 			continue
 		}
+		member := members[rand.Intn(len(members))]
 
 		// assign user to card
-		var user models.User
-		if err := s.db.First(&user, boardMember.UserID).Error; err != nil {
+		user := models.User{}
+		if err := s.db.First(&user, member.UserID).Error; err != nil {
 			continue
 		}
+		card.Assignees = append(card.Assignees, user)
 
-		if err := s.db.Model(&card).Association("Assignees").Append(&user); err != nil {
+		if err := s.db.Save(&card).Error; err != nil {
 			continue
 		}
 

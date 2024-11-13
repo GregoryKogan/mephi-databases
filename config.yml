@@ -8,3 +8,4 @@ seeder:
   attachments: 1000
   board_members: 1000
   card_labels: 1000
+  card_assignees: 1000

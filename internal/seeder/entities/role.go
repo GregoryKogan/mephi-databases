@@ -34,12 +34,12 @@ func (s *RoleSeederImpl) Seed() {
 
 	roles := []models.Role{
 		{
-			Title:       "admin",
-			Permissions: adminPermissions,
-		},
-		{
 			Title:       "user",
 			Permissions: userPermissions,
+		},
+		{
+			Title:       "admin",
+			Permissions: adminPermissions,
 		},
 	}
 

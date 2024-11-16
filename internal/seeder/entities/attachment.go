@@ -5,8 +5,8 @@ import (
 	"log/slog"
 
 	"github.com/GregoryKogan/mephi-databases/internal/models"
+	"github.com/GregoryKogan/mephi-databases/internal/seeder/selector"
 	"github.com/brianvoe/gofakeit/v7"
-	"golang.org/x/exp/rand"
 	"gorm.io/gorm"
 )
 
@@ -31,7 +31,7 @@ func (s *AttachmentSeederImpl) Seed(count uint) {
 	attachments := make([]models.Attachment, count)
 	for i := uint(0); i < count; i++ {
 		attachments[i] = models.Attachment{
-			CardID:  s.cardIDs[rand.Intn(len(s.cardIDs))],
+			CardID:  selector.NewSelector().RandomSelect(s.cardIDs),
 			FileURL: gofakeit.URL(),
 		}
 	}

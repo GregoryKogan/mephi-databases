@@ -28,9 +28,9 @@ func (s *BoardRoleSeederImpl) Seed() {
 
 	var roles = []models.BoardRole{
 		{
-			Title: "redactor",
+			Title: "viewer",
 			Permissions: pgtype.JSONB{
-				Bytes:  []byte(`{"read": true, "write": true, "delete": true}`),
+				Bytes:  []byte(`{"read": true, "write": false, "delete": false}`),
 				Status: pgtype.Present,
 			},
 		},
@@ -42,9 +42,9 @@ func (s *BoardRoleSeederImpl) Seed() {
 			},
 		},
 		{
-			Title: "viewer",
+			Title: "redactor",
 			Permissions: pgtype.JSONB{
-				Bytes:  []byte(`{"read": true, "write": false, "delete": false}`),
+				Bytes:  []byte(`{"read": true, "write": true, "delete": true}`),
 				Status: pgtype.Present,
 			},
 		},

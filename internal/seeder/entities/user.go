@@ -5,8 +5,8 @@ import (
 	"log/slog"
 
 	"github.com/GregoryKogan/mephi-databases/internal/models"
+	"github.com/GregoryKogan/mephi-databases/internal/seeder/selector"
 	"github.com/brianvoe/gofakeit/v7"
-	"golang.org/x/exp/rand"
 	"gorm.io/gorm"
 )
 
@@ -39,7 +39,7 @@ func (s *UserSeederImpl) Seed(count uint) {
 		users[i] = models.User{
 			Username: gofakeit.Username(),
 			Email:    gofakeit.Email(),
-			RoleID:   s.roleIDs[rand.Intn(len(s.roleIDs))],
+			RoleID:   selector.NewSelector().ExponentialSelect(s.roleIDs),
 		}
 	}
 

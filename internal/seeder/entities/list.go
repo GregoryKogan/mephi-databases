@@ -3,9 +3,9 @@ package entities
 import (
 	"fmt"
 	"log/slog"
-	"math/rand"
 
 	"github.com/GregoryKogan/mephi-databases/internal/models"
+	"github.com/GregoryKogan/mephi-databases/internal/seeder/selector"
 	"github.com/brianvoe/gofakeit/v7"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
@@ -40,7 +40,7 @@ func (s *ListSeederImpl) Seed(count uint) {
 	lists := make([]models.List, count)
 	for i := uint(0); i < count; i++ {
 		lists[i] = models.List{
-			BoardID: s.boardIDs[rand.Intn(len(s.boardIDs))],
+			BoardID: selector.NewSelector().RandomSelect(s.boardIDs),
 			Title:   cases.Title(language.English, cases.Compact).String(gofakeit.Adjective() + " " + gofakeit.Noun()),
 			Order:   int(i),
 		}

@@ -5,8 +5,8 @@ import (
 	"log/slog"
 
 	"github.com/GregoryKogan/mephi-databases/internal/models"
+	"github.com/GregoryKogan/mephi-databases/internal/seeder/selector"
 	"github.com/brianvoe/gofakeit/v7"
-	"golang.org/x/exp/rand"
 	"gorm.io/gorm"
 )
 
@@ -33,8 +33,8 @@ func (s *CommentSeederImpl) Seed(count uint) {
 	comments := make([]models.Comment, count)
 	for i := uint(0); i < count; i++ {
 		comments[i] = models.Comment{
-			CardID: s.cardIDs[rand.Intn(len(s.cardIDs))],
-			UserID: s.userIDs[rand.Intn(len(s.userIDs))],
+			CardID: selector.NewSelector().RandomSelect(s.cardIDs),
+			UserID: selector.NewSelector().RandomSelect(s.userIDs),
 			Text:   gofakeit.Comment(),
 		}
 	}

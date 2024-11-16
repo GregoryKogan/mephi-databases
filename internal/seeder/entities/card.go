@@ -5,8 +5,8 @@ import (
 	"log/slog"
 
 	"github.com/GregoryKogan/mephi-databases/internal/models"
+	"github.com/GregoryKogan/mephi-databases/internal/seeder/selector"
 	"github.com/brianvoe/gofakeit/v7"
-	"golang.org/x/exp/rand"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	"gorm.io/gorm"
@@ -40,7 +40,7 @@ func (s *CardSeederImpl) Seed(count uint) {
 	cards := make([]models.Card, count)
 	for i := uint(0); i < count; i++ {
 		cards[i] = models.Card{
-			ListID:  s.listIDs[rand.Intn(len(s.listIDs))],
+			ListID:  selector.NewSelector().RandomSelect(s.listIDs),
 			Title:   cases.Title(language.English, cases.Compact).String(gofakeit.Adjective() + " " + gofakeit.Noun()),
 			Content: gofakeit.Paragraph(2, 3, 10, " "),
 			Order:   int(i),

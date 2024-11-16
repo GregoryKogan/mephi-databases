@@ -3,9 +3,9 @@ package entities
 import (
 	"fmt"
 	"log/slog"
-	"math/rand"
 
 	"github.com/GregoryKogan/mephi-databases/internal/models"
+	"github.com/GregoryKogan/mephi-databases/internal/seeder/selector"
 	"gorm.io/gorm"
 )
 
@@ -39,15 +39,15 @@ func (s *BoardMemberSeederImpl) Seed(count uint) {
 	existingMembers := make(map[uint]map[uint]bool)
 
 	for created := uint(0); created < count; {
-		boardID := s.boardIDs[rand.Intn(len(s.boardIDs))]
-		userID := s.userIDs[rand.Intn(len(s.userIDs))]
+		boardID := selector.NewSelector().RandomSelect(s.boardIDs)
+		userID := selector.NewSelector().RandomSelect(s.userIDs)
 
 		if _, exists := existingMembers[boardID]; !exists {
 			existingMembers[boardID] = make(map[uint]bool)
 		}
 
 		if !existingMembers[boardID][userID] {
-			roleID := s.boardRoleIDs[rand.Intn(len(s.boardRoleIDs))]
+			roleID := selector.NewSelector().ExponentialSelect(s.boardRoleIDs)
 			boardMembers[created] = models.BoardMember{
 				BoardID:     boardID,
 				UserID:      userID,

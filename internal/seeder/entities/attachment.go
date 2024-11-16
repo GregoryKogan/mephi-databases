@@ -32,7 +32,7 @@ func (s *AttachmentSeederImpl) Seed(count uint) {
 	for i := uint(0); i < count; i++ {
 		attachments[i] = models.Attachment{
 			CardID:  selector.NewSelector().RandomSelect(s.cardIDs),
-			FileURL: gofakeit.URL(),
+			FileURL: gofakeit.DomainName() + "/" + gofakeit.Word() + "." + gofakeit.FileExtension(),
 		}
 	}
 

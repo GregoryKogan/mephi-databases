@@ -5,7 +5,7 @@ import (
 	"log/slog"
 
 	"github.com/GregoryKogan/mephi-databases/internal/models"
-	"github.com/go-faker/faker/v4"
+	"github.com/brianvoe/gofakeit/v7"
 	"golang.org/x/exp/rand"
 	"gorm.io/gorm"
 )
@@ -37,8 +37,8 @@ func (s *UserSeederImpl) Seed(count uint) {
 	users := make([]models.User, count)
 	for i := uint(0); i < count; i++ {
 		users[i] = models.User{
-			Username: faker.FirstName() + " " + faker.LastName(),
-			Email:    faker.Email(),
+			Username: gofakeit.Username(),
+			Email:    gofakeit.Email(),
 			RoleID:   s.roleIDs[rand.Intn(len(s.roleIDs))],
 		}
 	}

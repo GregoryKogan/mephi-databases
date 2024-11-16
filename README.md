@@ -3,7 +3,7 @@
 Laboratory work on the database course at MEPhI.  
 Topic: Trello
 
-This project is built in Go, uses [GORM](https://gorm.io/) as an ORM for PostgreSQL and [faker](https://pkg.go.dev/github.com/go-faker/faker/v4) package to seed the database.
+This project is built in Go, uses [GORM](https://gorm.io/) as an ORM for PostgreSQL and [gofakeit](https://github.com/brianvoe/gofakeit) package to seed the database.
 
 <details>
   <summary>Entity-relationship diagram</summary>
@@ -41,7 +41,7 @@ seeder:
     # Average ratios of entities
     # Notice that labels and board members are the most numerous entities (30 times more than users)
     # Overall, the number of entities is 161 times more than the number of users
-    # For example, if you have 10.000 users, you will have 1.610.005 entities in total
+    # For example, if you have 10.000 users, you will have 1.610.000 entities in total
     boards_per_user: 3 # 3x users
     lists_per_board: 3 # 9x users
     cards_per_list: 2 # 18x users

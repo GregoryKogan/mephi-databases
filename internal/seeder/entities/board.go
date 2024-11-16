@@ -5,8 +5,10 @@ import (
 	"log/slog"
 
 	"github.com/GregoryKogan/mephi-databases/internal/models"
-	"github.com/go-faker/faker/v4"
+	"github.com/brianvoe/gofakeit/v7"
 	"golang.org/x/exp/rand"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 	"gorm.io/gorm"
 )
 
@@ -35,8 +37,8 @@ func (s *BoardSeederImpl) Seed(count uint) {
 	for i := uint(0); i < count; i++ {
 		boards[i] = models.Board{
 			OwnerID:     s.userIDs[rand.Intn(len(s.userIDs))],
-			Title:       "Board " + faker.Word(),
-			Description: faker.Sentence(),
+			Title:       cases.Title(language.English, cases.Compact).String(gofakeit.Adjective() + " " + gofakeit.Noun()),
+			Description: gofakeit.Sentence(10),
 		}
 	}
 

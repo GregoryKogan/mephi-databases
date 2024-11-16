@@ -6,7 +6,9 @@ import (
 	"math/rand"
 
 	"github.com/GregoryKogan/mephi-databases/internal/models"
-	"github.com/go-faker/faker/v4"
+	"github.com/brianvoe/gofakeit/v7"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 	"gorm.io/gorm"
 )
 
@@ -39,7 +41,7 @@ func (s *ListSeederImpl) Seed(count uint) {
 	for i := uint(0); i < count; i++ {
 		lists[i] = models.List{
 			BoardID: s.boardIDs[rand.Intn(len(s.boardIDs))],
-			Title:   "List " + faker.Word(),
+			Title:   cases.Title(language.English, cases.Compact).String(gofakeit.Adjective() + " " + gofakeit.Noun()),
 			Order:   int(i),
 		}
 	}

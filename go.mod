@@ -3,7 +3,7 @@ module github.com/GregoryKogan/mephi-databases
 go 1.23.2
 
 require (
-	github.com/go-faker/faker/v4 v4.5.0
+	github.com/brianvoe/gofakeit/v7 v7.1.2
 	gorm.io/driver/postgres v1.5.9
 	gorm.io/gorm v1.25.12
 )
@@ -42,5 +42,5 @@ require (
 	golang.org/x/crypto v0.29.0 // indirect
 	golang.org/x/exp v0.0.0-20241108190413-2d47ceb2692f
 	golang.org/x/sync v0.9.0 // indirect
-	golang.org/x/text v0.20.0 // indirect
+	golang.org/x/text v0.20.0
 )

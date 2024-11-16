@@ -5,7 +5,7 @@ import (
 	"log/slog"
 
 	"github.com/GregoryKogan/mephi-databases/internal/models"
-	"github.com/go-faker/faker/v4"
+	"github.com/brianvoe/gofakeit/v7"
 	"golang.org/x/exp/rand"
 	"gorm.io/gorm"
 )
@@ -35,7 +35,7 @@ func (s *CommentSeederImpl) Seed(count uint) {
 		comments[i] = models.Comment{
 			CardID: s.cardIDs[rand.Intn(len(s.cardIDs))],
 			UserID: s.userIDs[rand.Intn(len(s.userIDs))],
-			Text:   faker.Sentence(),
+			Text:   gofakeit.Comment(),
 		}
 	}
 

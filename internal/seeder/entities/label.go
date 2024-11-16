@@ -6,7 +6,9 @@ import (
 	"math/rand"
 
 	"github.com/GregoryKogan/mephi-databases/internal/models"
-	"github.com/go-faker/faker/v4"
+	"github.com/brianvoe/gofakeit/v7"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 	"gorm.io/gorm"
 )
 
@@ -38,8 +40,8 @@ func (s *LabelSeederImpl) Seed(count uint) {
 	for i := uint(0); i < count; i++ {
 		labels[i] = models.Label{
 			BoardID: s.boardIDs[rand.Intn(len(s.boardIDs))],
-			Title:   "Label " + faker.Word(),
-			Color:   randomHexColor(),
+			Title:   cases.Title(language.English, cases.Compact).String(gofakeit.Noun()),
+			Color:   gofakeit.HexColor(),
 		}
 	}
 
@@ -59,13 +61,4 @@ func (s *LabelSeederImpl) GetIDs() []uint {
 
 func (s *LabelSeederImpl) SetBoardIDs(ids []uint) {
 	s.boardIDs = ids
-}
-
-func randomHexColor() string {
-	chars := "abcdef0123456789"
-	color := "#"
-	for i := 0; i < 6; i++ {
-		color += string(chars[rand.Intn(len(chars))])
-	}
-	return color
 }

@@ -5,7 +5,7 @@ Topic: Trello
 
 This project is built in Go, uses [GORM](https://gorm.io/) as an ORM for PostgreSQL and [gofakeit](https://github.com/brianvoe/gofakeit) package to seed the database.
 
-Checkout the [queries.md](queries.md) file for possible queries to run.
+**Checkout the [queries.md](queries.md) file for possible queries to run.**
 
 <details>
   <summary>Entity-relationship diagram</summary>

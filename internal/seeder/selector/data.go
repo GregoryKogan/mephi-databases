@@ -28,7 +28,7 @@ func (d *DateSelectorImpl) BeforeNow(moment time.Time) time.Time {
 }
 
 func (d *DateSelectorImpl) After(moment time.Time, period time.Duration) time.Time {
-	return moment.Add(period + time.Duration(rand.Int63n(int64(period))))
+	return moment.Add(time.Duration(rand.Int63n(int64(period))))
 }
 
 func (d *DateSelectorImpl) Between(start, end time.Time) time.Time {

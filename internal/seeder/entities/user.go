@@ -3,6 +3,7 @@ package entities
 import (
 	"fmt"
 	"log/slog"
+	"time"
 
 	"github.com/GregoryKogan/mephi-databases/internal/models"
 	"github.com/GregoryKogan/mephi-databases/internal/seeder/selector"
@@ -12,14 +13,14 @@ import (
 
 type UserSeeder interface {
 	Seed(count uint)
-	SetRoleIDs(roleIDs []uint)
-	GetIDs() []uint
+	SetRoleIDs([]uint)
+	GetRecords() []Record
 }
 
 type UserSeederImpl struct {
 	db      *gorm.DB
 	roleIDs []uint
-	ids     []uint
+	records []Record
 }
 
 func NewUserSeeder(db *gorm.DB) UserSeeder {
@@ -39,7 +40,10 @@ func (s *UserSeederImpl) Seed(count uint) {
 		users[i] = models.User{
 			Username: gofakeit.Username(),
 			Email:    gofakeit.Email(),
-			RoleID:   selector.NewSliceSelector().Exponential(s.roleIDs),
+			RoleID:   s.roleIDs[selector.NewSliceSelector().Exponential(len(s.roleIDs))],
+			Model: gorm.Model{
+				CreatedAt: selector.NewDateSelector().Before(time.Now(), time.Duration(time.Hour*24*30*12)),
+			},
 		}
 	}
 
@@ -47,9 +51,9 @@ func (s *UserSeederImpl) Seed(count uint) {
 		panic(err)
 	}
 
-	s.ids = make([]uint, count)
+	s.records = make([]Record, count)
 	for i, user := range users {
-		s.ids[i] = user.ID
+		s.records[i] = Record{ID: user.ID, CreatedAt: user.CreatedAt}
 	}
 }
 
@@ -57,6 +61,6 @@ func (s *UserSeederImpl) SetRoleIDs(roleIDs []uint) {
 	s.roleIDs = roleIDs
 }
 
-func (s *UserSeederImpl) GetIDs() []uint {
-	return s.ids
+func (s *UserSeederImpl) GetRecords() []Record {
+	return s.records
 }

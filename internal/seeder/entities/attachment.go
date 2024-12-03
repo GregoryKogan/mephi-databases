@@ -12,12 +12,12 @@ import (
 
 type AttachmentSeeder interface {
 	Seed(count uint)
-	SetCardIDs(cardIDs []uint)
+	SetCardRecords([]Record)
 }
 
 type AttachmentSeederImpl struct {
-	db      *gorm.DB
-	cardIDs []uint
+	db          *gorm.DB
+	cardRecords []Record
 }
 
 func NewAttachmentSeeder(db *gorm.DB) AttachmentSeeder {
@@ -30,9 +30,13 @@ func (s *AttachmentSeederImpl) Seed(count uint) {
 
 	attachments := make([]models.Attachment, count)
 	for i := uint(0); i < count; i++ {
+		cardRecord := s.cardRecords[selector.NewSliceSelector().Random(len(s.cardRecords))]
 		attachments[i] = models.Attachment{
-			CardID:  selector.NewSliceSelector().Random(s.cardIDs),
+			CardID:  cardRecord.ID,
 			FileURL: gofakeit.DomainName() + "/" + gofakeit.Word() + "." + gofakeit.FileExtension(),
+			Model: gorm.Model{
+				CreatedAt: selector.NewDateSelector().BeforeNow(cardRecord.CreatedAt),
+			},
 		}
 	}
 
@@ -41,6 +45,6 @@ func (s *AttachmentSeederImpl) Seed(count uint) {
 	}
 }
 
-func (s *AttachmentSeederImpl) SetCardIDs(ids []uint) {
-	s.cardIDs = ids
+func (s *AttachmentSeederImpl) SetCardRecords(records []Record) {
+	s.cardRecords = records
 }

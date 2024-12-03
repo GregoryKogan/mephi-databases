@@ -12,14 +12,14 @@ import (
 
 type CommentSeeder interface {
 	Seed(count uint)
-	SetCardIDs(cardIDs []uint)
-	SetUserIDs(userIDs []uint)
+	SetCardRecords([]Record)
+	SetUserRecords([]Record)
 }
 
 type CommentSeederImpl struct {
-	db      *gorm.DB
-	cardIDs []uint
-	userIDs []uint
+	db          *gorm.DB
+	cardRecords []Record
+	userRecords []Record
 }
 
 func NewCommentSeeder(db *gorm.DB) CommentSeeder {
@@ -32,10 +32,21 @@ func (s *CommentSeederImpl) Seed(count uint) {
 
 	comments := make([]models.Comment, count)
 	for i := uint(0); i < count; i++ {
+		cardRecord := s.cardRecords[selector.NewSliceSelector().Random(len(s.cardRecords))]
+		userRecord := s.userRecords[selector.NewSliceSelector().Random(len(s.userRecords))]
+
+		minCommentDate := cardRecord.CreatedAt
+		if userRecord.CreatedAt.After(minCommentDate) {
+			minCommentDate = userRecord.CreatedAt
+		}
+
 		comments[i] = models.Comment{
-			CardID: selector.NewSliceSelector().Random(s.cardIDs),
-			UserID: selector.NewSliceSelector().Random(s.userIDs),
+			CardID: cardRecord.ID,
+			UserID: userRecord.ID,
 			Text:   gofakeit.Comment(),
+			Model: gorm.Model{
+				CreatedAt: selector.NewDateSelector().BeforeNow(minCommentDate),
+			},
 		}
 	}
 
@@ -44,10 +55,10 @@ func (s *CommentSeederImpl) Seed(count uint) {
 	}
 }
 
-func (s *CommentSeederImpl) SetCardIDs(ids []uint) {
-	s.cardIDs = ids
+func (s *CommentSeederImpl) SetCardRecords(records []Record) {
+	s.cardRecords = records
 }
 
-func (s *CommentSeederImpl) SetUserIDs(ids []uint) {
-	s.userIDs = ids
+func (s *CommentSeederImpl) SetUserRecords(records []Record) {
+	s.userRecords = records
 }

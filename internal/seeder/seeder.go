@@ -150,29 +150,29 @@ func (s *SeederImpl) seedUsers() {
 }
 
 func (s *SeederImpl) seedPasswords() {
-	s.passwordSeeder.SetUserIDs(s.userSeeder.GetIDs())
+	s.passwordSeeder.SetUserRecords(s.userSeeder.GetRecords())
 	s.passwordSeeder.Seed()
 	s.passwordCount = s.userCount // One password per user
 }
 
 func (s *SeederImpl) seedBoards() {
 	boardCount := uint(viper.GetFloat64("seeder.entities.boards_per_user") * float64(s.userCount))
-	s.boardSeeder.SetUserIDs(s.userSeeder.GetIDs())
+	s.boardSeeder.SetUserRecords(s.userSeeder.GetRecords())
 	s.boardSeeder.Seed(boardCount)
 	s.boardCount = int(boardCount)
 }
 
 func (s *SeederImpl) seedLabels() {
 	labelCount := uint(viper.GetFloat64("seeder.entities.labels_per_board") * float64(s.boardCount))
-	s.labelSeeder.SetBoardIDs(s.boardSeeder.GetIDs())
+	s.labelSeeder.SetBoardRecords(s.boardSeeder.GetRecords())
 	s.labelSeeder.Seed(labelCount)
 	s.labelCount = int(labelCount)
 }
 
 func (s *SeederImpl) seedBoardMembers() {
 	boardMemberCount := uint(viper.GetFloat64("seeder.entities.board_members_per_board") * float64(s.boardCount))
-	s.boardMemberSeeder.SetBoardIDs(s.boardSeeder.GetIDs())
-	s.boardMemberSeeder.SetUserIDs(s.userSeeder.GetIDs())
+	s.boardMemberSeeder.SetBoardRecords(s.boardSeeder.GetRecords())
+	s.boardMemberSeeder.SetUserRecords(s.userSeeder.GetRecords())
 	s.boardMemberSeeder.SetBoardRoleIDs(s.boardRoleSeeder.GetIDs())
 	s.boardMemberSeeder.Seed(boardMemberCount)
 	s.boardMemberCount = int(boardMemberCount)
@@ -180,29 +180,29 @@ func (s *SeederImpl) seedBoardMembers() {
 
 func (s *SeederImpl) seedLists() {
 	listCount := uint(viper.GetFloat64("seeder.entities.lists_per_board") * float64(s.boardCount))
-	s.listSeeder.SetBoardIDs(s.boardSeeder.GetIDs())
+	s.listSeeder.SetBoardRecords(s.boardSeeder.GetRecords())
 	s.listSeeder.Seed(listCount)
 	s.listCount = int(listCount)
 }
 
 func (s *SeederImpl) seedCards() {
 	cardCount := uint(viper.GetFloat64("seeder.entities.cards_per_list") * float64(s.listCount))
-	s.cardSeeder.SetListIDs(s.listSeeder.GetIDs())
+	s.cardSeeder.SetListRecords(s.listSeeder.GetRecords())
 	s.cardSeeder.Seed(cardCount)
 	s.cardCount = int(cardCount)
 }
 
 func (s *SeederImpl) seedComments() {
 	commentCount := uint(viper.GetFloat64("seeder.entities.comments_per_card") * float64(s.cardCount))
-	s.commentSeeder.SetCardIDs(s.cardSeeder.GetIDs())
-	s.commentSeeder.SetUserIDs(s.userSeeder.GetIDs())
+	s.commentSeeder.SetCardRecords(s.cardSeeder.GetRecords())
+	s.commentSeeder.SetUserRecords(s.userSeeder.GetRecords())
 	s.commentSeeder.Seed(commentCount)
 	s.commentCount = int(commentCount)
 }
 
 func (s *SeederImpl) seedAttachments() {
 	attachmentCount := uint(viper.GetFloat64("seeder.entities.attachments_per_card") * float64(s.cardCount))
-	s.attachmentSeeder.SetCardIDs(s.cardSeeder.GetIDs())
+	s.attachmentSeeder.SetCardRecords(s.cardSeeder.GetRecords())
 	s.attachmentSeeder.Seed(attachmentCount)
 	s.attachmentCount = int(attachmentCount)
 }

@@ -3,7 +3,6 @@ package entities
 import (
 	"fmt"
 	"log/slog"
-	"time"
 
 	"github.com/GregoryKogan/mephi-databases/internal/models"
 	"github.com/GregoryKogan/mephi-databases/internal/seeder/selector"
@@ -15,15 +14,15 @@ import (
 
 type BoardSeeder interface {
 	Seed(count uint)
-	GetIDs() []uint
-	SetUserIDs([]uint)
+	GetRecords() []Record
+	SetUserRecords([]Record)
 	GetCount() float64
 }
 
 type BoardSeederImpl struct {
-	db      *gorm.DB
-	ids     []uint
-	userIDs []uint
+	db          *gorm.DB
+	records     []Record
+	userRecords []Record
 }
 
 func NewBoardSeeder(db *gorm.DB) BoardSeeder {
@@ -36,12 +35,13 @@ func (s *BoardSeederImpl) Seed(count uint) {
 
 	boards := make([]models.Board, count)
 	for i := uint(0); i < count; i++ {
+		ownerRecord := s.userRecords[selector.NewSliceSelector().Random(len(s.userRecords))]
 		boards[i] = models.Board{
-			OwnerID:     selector.NewSliceSelector().Random(s.userIDs),
+			OwnerID:     ownerRecord.ID,
 			Title:       cases.Title(language.English, cases.Compact).String(gofakeit.Adjective() + " " + gofakeit.Noun()),
 			Description: gofakeit.Sentence(10),
 			Model: gorm.Model{
-				CreatedAt: selector.NewDateSelector().Before(time.Now(), time.Duration(time.Hour*24*30*6)),
+				CreatedAt: selector.NewDateSelector().BeforeNow(ownerRecord.CreatedAt),
 			},
 		}
 	}
@@ -50,20 +50,20 @@ func (s *BoardSeederImpl) Seed(count uint) {
 		panic(err)
 	}
 
-	s.ids = make([]uint, count)
+	s.records = make([]Record, count)
 	for i, board := range boards {
-		s.ids[i] = board.ID
+		s.records[i] = Record{ID: board.ID, CreatedAt: board.CreatedAt}
 	}
 }
 
-func (s *BoardSeederImpl) GetIDs() []uint {
-	return s.ids
+func (s *BoardSeederImpl) GetRecords() []Record {
+	return s.records
 }
 
 func (s *BoardSeederImpl) GetCount() float64 {
-	return float64(len(s.ids))
+	return float64(len(s.records))
 }
 
-func (s *BoardSeederImpl) SetUserIDs(ids []uint) {
-	s.userIDs = ids
+func (s *BoardSeederImpl) SetUserRecords(records []Record) {
+	s.userRecords = records
 }

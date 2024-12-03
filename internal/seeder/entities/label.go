@@ -14,14 +14,14 @@ import (
 
 type LabelSeeder interface {
 	Seed(count uint)
-	GetIDs() []uint
-	SetBoardIDs([]uint)
+	GetRecords() []Record
+	SetBoardRecords([]Record)
 }
 
 type LabelSeederImpl struct {
-	db       *gorm.DB
-	ids      []uint
-	boardIDs []uint
+	db           *gorm.DB
+	records      []Record
+	boardRecords []Record
 }
 
 func NewLabelSeeder(db *gorm.DB) LabelSeeder {
@@ -32,16 +32,20 @@ func (s *LabelSeederImpl) Seed(count uint) {
 	slog.Info(fmt.Sprintf("Seeding %d labels", count))
 	defer slog.Info("Labels seeded")
 
-	if len(s.boardIDs) == 0 {
+	if len(s.boardRecords) == 0 {
 		panic("boardIDs are not set")
 	}
 
 	labels := make([]models.Label, count)
 	for i := uint(0); i < count; i++ {
+		boardRecord := s.boardRecords[selector.NewSliceSelector().Random(len(s.boardRecords))]
 		labels[i] = models.Label{
-			BoardID: selector.NewSliceSelector().Random(s.boardIDs),
+			BoardID: boardRecord.ID,
 			Title:   cases.Title(language.English, cases.Compact).String(gofakeit.Noun()),
 			Color:   gofakeit.HexColor(),
+			Model: gorm.Model{
+				CreatedAt: selector.NewDateSelector().BeforeNow(boardRecord.CreatedAt),
+			},
 		}
 	}
 
@@ -49,16 +53,16 @@ func (s *LabelSeederImpl) Seed(count uint) {
 		panic(err)
 	}
 
-	s.ids = make([]uint, count)
+	s.records = make([]Record, count)
 	for i, label := range labels {
-		s.ids[i] = label.ID
+		s.records[i] = Record{ID: label.ID, CreatedAt: label.CreatedAt}
 	}
 }
 
-func (s *LabelSeederImpl) GetIDs() []uint {
-	return s.ids
+func (s *LabelSeederImpl) GetRecords() []Record {
+	return s.records
 }
 
-func (s *LabelSeederImpl) SetBoardIDs(ids []uint) {
-	s.boardIDs = ids
+func (s *LabelSeederImpl) SetBoardRecords(records []Record) {
+	s.boardRecords = records
 }

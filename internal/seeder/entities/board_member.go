@@ -11,15 +11,15 @@ import (
 
 type BoardMemberSeeder interface {
 	Seed(count uint)
-	SetBoardIDs(boardIDs []uint)
-	SetUserIDs(userIDs []uint)
-	SetBoardRoleIDs(boardRoleIDs []uint)
+	SetBoardRecords([]Record)
+	SetUserRecords([]Record)
+	SetBoardRoleIDs([]uint)
 }
 
 type BoardMemberSeederImpl struct {
 	db           *gorm.DB
-	boardIDs     []uint
-	userIDs      []uint
+	boardRecords []Record
+	userRecords  []Record
 	boardRoleIDs []uint
 }
 
@@ -31,7 +31,7 @@ func (s *BoardMemberSeederImpl) Seed(count uint) {
 	slog.Info(fmt.Sprintf("Seeding %d board members", count))
 	defer slog.Info("Board members seeded")
 
-	if len(s.boardIDs) == 0 || len(s.userIDs) == 0 || len(s.boardRoleIDs) == 0 {
+	if len(s.boardRecords) == 0 || len(s.userRecords) == 0 || len(s.boardRoleIDs) == 0 {
 		panic("boardIDs, userIDs or boardRoleIDs are not set")
 	}
 
@@ -39,21 +39,30 @@ func (s *BoardMemberSeederImpl) Seed(count uint) {
 	existingMembers := make(map[uint]map[uint]bool)
 
 	for created := uint(0); created < count; {
-		boardID := selector.NewSliceSelector().Random(s.boardIDs)
-		userID := selector.NewSliceSelector().Random(s.userIDs)
+		boardRecord := s.boardRecords[selector.NewSliceSelector().Random(len(s.boardRecords))]
+		userRecord := s.userRecords[selector.NewSliceSelector().Random(len(s.userRecords))]
 
-		if _, exists := existingMembers[boardID]; !exists {
-			existingMembers[boardID] = make(map[uint]bool)
+		if _, exists := existingMembers[boardRecord.ID]; !exists {
+			existingMembers[boardRecord.ID] = make(map[uint]bool)
 		}
 
-		if !existingMembers[boardID][userID] {
-			roleID := selector.NewSliceSelector().Exponential(s.boardRoleIDs)
-			boardMembers[created] = models.BoardMember{
-				BoardID:     boardID,
-				UserID:      userID,
-				BoardRoleID: roleID,
+		if !existingMembers[boardRecord.ID][userRecord.ID] {
+			roleID := s.boardRoleIDs[selector.NewSliceSelector().Exponential(len(s.boardRoleIDs))]
+
+			minJoinDate := boardRecord.CreatedAt
+			if userRecord.CreatedAt.After(minJoinDate) {
+				minJoinDate = userRecord.CreatedAt
 			}
-			existingMembers[boardID][userID] = true
+
+			boardMembers[created] = models.BoardMember{
+				BoardID:     boardRecord.ID,
+				UserID:      userRecord.ID,
+				BoardRoleID: roleID,
+				Model: gorm.Model{
+					CreatedAt: selector.NewDateSelector().BeforeNow(minJoinDate),
+				},
+			}
+			existingMembers[boardRecord.ID][userRecord.ID] = true
 			created++
 		}
 	}
@@ -63,12 +72,12 @@ func (s *BoardMemberSeederImpl) Seed(count uint) {
 	}
 }
 
-func (s *BoardMemberSeederImpl) SetBoardIDs(ids []uint) {
-	s.boardIDs = ids
+func (s *BoardMemberSeederImpl) SetBoardRecords(records []Record) {
+	s.boardRecords = records
 }
 
-func (s *BoardMemberSeederImpl) SetUserIDs(ids []uint) {
-	s.userIDs = ids
+func (s *BoardMemberSeederImpl) SetUserRecords(records []Record) {
+	s.userRecords = records
 }
 
 func (s *BoardMemberSeederImpl) SetBoardRoleIDs(ids []uint) {

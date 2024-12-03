@@ -7,8 +7,8 @@ import (
 )
 
 type SliceSelector interface {
-	Random([]uint) uint
-	Exponential([]uint) uint
+	Random(length int) int
+	Exponential(length int) int
 }
 
 type SliceSelectorImpl struct{}
@@ -17,23 +17,23 @@ func NewSliceSelector() SliceSelector {
 	return &SliceSelectorImpl{}
 }
 
-func (s *SliceSelectorImpl) Random(ids []uint) uint {
-	return ids[rand.Intn(len(ids))]
+func (s *SliceSelectorImpl) Random(length int) int {
+	return rand.Intn(length)
 }
 
-func (s *SliceSelectorImpl) Exponential(ids []uint) uint {
+func (s *SliceSelectorImpl) Exponential(length int) int {
 	rand.Seed(uint64(time.Now().UnixNano()))
 	totalWeight := 0.0
-	for i := range ids {
+	for i := 0; i < length; i++ {
 		totalWeight += 1.0 / float64((int(1) << i))
 	}
 	r := rand.Float64() * totalWeight
 	accumulatedWeight := 0.0
-	for i, id := range ids {
+	for i := 0; i < length; i++ {
 		accumulatedWeight += 1.0 / float64((int(1) << i))
 		if r < accumulatedWeight {
-			return id
+			return i
 		}
 	}
-	return ids[len(ids)-1]
+	return length - 1
 }

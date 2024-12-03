@@ -11,12 +11,12 @@ import (
 
 type PasswordSeeder interface {
 	Seed()
-	SetUserIDs(ids []uint)
+	SetUserRecords([]Record)
 }
 
 type PasswordSeederImpl struct {
-	db      *gorm.DB
-	userIDs []uint
+	db          *gorm.DB
+	userRecords []Record
 }
 
 func NewPasswordSeeder(db *gorm.DB) PasswordSeeder {
@@ -24,17 +24,17 @@ func NewPasswordSeeder(db *gorm.DB) PasswordSeeder {
 }
 
 func (s *PasswordSeederImpl) Seed() {
-	slog.Info(fmt.Sprintf("Seeding %d passwords", len(s.userIDs)))
+	slog.Info(fmt.Sprintf("Seeding %d passwords", len(s.userRecords)))
 	defer slog.Info("Passwords seeded")
 
-	if len(s.userIDs) == 0 {
+	if len(s.userRecords) == 0 {
 		panic("userIDs are not set")
 	}
 
-	passwords := make([]models.Password, len(s.userIDs))
-	for i, userID := range s.userIDs {
+	passwords := make([]models.Password, len(s.userRecords))
+	for i, record := range s.userRecords {
 		passwords[i] = models.Password{
-			UserID:    userID,
+			UserID:    record.ID,
 			Hash:      randomBytes(),
 			Salt:      randomBytes(),
 			Algorithm: "argon2id",
@@ -46,8 +46,8 @@ func (s *PasswordSeederImpl) Seed() {
 	}
 }
 
-func (s *PasswordSeederImpl) SetUserIDs(ids []uint) {
-	s.userIDs = ids
+func (s *PasswordSeederImpl) SetUserRecords(records []Record) {
+	s.userRecords = records
 }
 
 func randomBytes() []byte {

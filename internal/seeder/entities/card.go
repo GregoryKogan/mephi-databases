@@ -14,15 +14,15 @@ import (
 
 type CardSeeder interface {
 	Seed(count uint)
-	GetIDs() []uint
+	GetRecords() []Record
 	GetCount() float64
-	SetListIDs([]uint)
+	SetListRecords([]Record)
 }
 
 type CardSeederImpl struct {
-	db      *gorm.DB
-	ids     []uint
-	listIDs []uint
+	db          *gorm.DB
+	records     []Record
+	listRecords []Record
 }
 
 func NewCardSeeder(db *gorm.DB) CardSeeder {
@@ -33,17 +33,21 @@ func (s *CardSeederImpl) Seed(count uint) {
 	slog.Info(fmt.Sprintf("Seeding %d cards", count))
 	defer slog.Info("Cards seeded")
 
-	if len(s.listIDs) == 0 {
+	if len(s.listRecords) == 0 {
 		panic("listIDs are not set")
 	}
 
 	cards := make([]models.Card, count)
 	for i := uint(0); i < count; i++ {
+		listRecord := s.listRecords[selector.NewSliceSelector().Random(len(s.listRecords))]
 		cards[i] = models.Card{
-			ListID:  selector.NewSliceSelector().Random(s.listIDs),
+			ListID:  listRecord.ID,
 			Title:   cases.Title(language.English, cases.Compact).String(gofakeit.Adjective() + " " + gofakeit.Noun()),
 			Content: gofakeit.Paragraph(2, 3, 10, " "),
 			Order:   int(i),
+			Model: gorm.Model{
+				CreatedAt: selector.NewDateSelector().BeforeNow(listRecord.CreatedAt),
+			},
 		}
 	}
 
@@ -51,20 +55,20 @@ func (s *CardSeederImpl) Seed(count uint) {
 		panic(err)
 	}
 
-	s.ids = make([]uint, count)
+	s.records = make([]Record, count)
 	for i, card := range cards {
-		s.ids[i] = card.ID
+		s.records[i] = Record{ID: card.ID, CreatedAt: card.CreatedAt}
 	}
 }
 
-func (s *CardSeederImpl) GetIDs() []uint {
-	return s.ids
+func (s *CardSeederImpl) GetRecords() []Record {
+	return s.records
 }
 
 func (s *CardSeederImpl) GetCount() float64 {
-	return float64(len(s.ids))
+	return float64(len(s.records))
 }
 
-func (s *CardSeederImpl) SetListIDs(ids []uint) {
-	s.listIDs = ids
+func (s *CardSeederImpl) SetListRecords(records []Record) {
+	s.listRecords = records
 }

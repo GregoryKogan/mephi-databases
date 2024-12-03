@@ -3,6 +3,7 @@ package entities
 import (
 	"fmt"
 	"log/slog"
+	"time"
 
 	"github.com/GregoryKogan/mephi-databases/internal/models"
 	"github.com/GregoryKogan/mephi-databases/internal/seeder/selector"
@@ -39,6 +40,9 @@ func (s *BoardSeederImpl) Seed(count uint) {
 			OwnerID:     selector.NewSliceSelector().Random(s.userIDs),
 			Title:       cases.Title(language.English, cases.Compact).String(gofakeit.Adjective() + " " + gofakeit.Noun()),
 			Description: gofakeit.Sentence(10),
+			Model: gorm.Model{
+				CreatedAt: selector.NewDateSelector().Before(time.Now(), time.Duration(time.Hour*24*30*6)),
+			},
 		}
 	}
 

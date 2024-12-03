@@ -92,8 +92,6 @@ AND cards.due_date BETWEEN NOW() AND NOW() + INTERVAL '7 days'
 ORDER BY lists.title, cards.due_date;
 ```
 
-<!-- TODO: Implement created_at timestamp generation in the seeder -->
-
 ### Retrieve board members and their roles for a specific board ordered by their join date
 
 ```sql

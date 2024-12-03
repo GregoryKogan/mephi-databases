@@ -12,6 +12,7 @@ type Card struct {
 	Title       string `gorm:"not null"`
 	Content     string `gorm:"type:text"`
 	Order       int    `gorm:"not null"`
+	Completed   bool   `gorm:"default:false"`
 	DueDate     sql.NullTime
 	Attachments []Attachment
 	Assignees   []User `gorm:"many2many:card_assignees;"`

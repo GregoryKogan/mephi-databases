@@ -39,15 +39,15 @@ func (s *BoardMemberSeederImpl) Seed(count uint) {
 	existingMembers := make(map[uint]map[uint]bool)
 
 	for created := uint(0); created < count; {
-		boardID := selector.NewSelector().RandomSelect(s.boardIDs)
-		userID := selector.NewSelector().RandomSelect(s.userIDs)
+		boardID := selector.NewSliceSelector().Random(s.boardIDs)
+		userID := selector.NewSliceSelector().Random(s.userIDs)
 
 		if _, exists := existingMembers[boardID]; !exists {
 			existingMembers[boardID] = make(map[uint]bool)
 		}
 
 		if !existingMembers[boardID][userID] {
-			roleID := selector.NewSelector().ExponentialSelect(s.boardRoleIDs)
+			roleID := selector.NewSliceSelector().Exponential(s.boardRoleIDs)
 			boardMembers[created] = models.BoardMember{
 				BoardID:     boardID,
 				UserID:      userID,

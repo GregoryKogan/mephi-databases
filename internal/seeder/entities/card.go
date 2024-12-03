@@ -40,7 +40,7 @@ func (s *CardSeederImpl) Seed(count uint) {
 	cards := make([]models.Card, count)
 	for i := uint(0); i < count; i++ {
 		cards[i] = models.Card{
-			ListID:  selector.NewSelector().RandomSelect(s.listIDs),
+			ListID:  selector.NewSliceSelector().Random(s.listIDs),
 			Title:   cases.Title(language.English, cases.Compact).String(gofakeit.Adjective() + " " + gofakeit.Noun()),
 			Content: gofakeit.Paragraph(2, 3, 10, " "),
 			Order:   int(i),

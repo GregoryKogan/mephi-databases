@@ -40,7 +40,7 @@ func (s *ListSeederImpl) Seed(count uint) {
 	lists := make([]models.List, count)
 	for i := uint(0); i < count; i++ {
 		lists[i] = models.List{
-			BoardID: selector.NewSelector().RandomSelect(s.boardIDs),
+			BoardID: selector.NewSliceSelector().Random(s.boardIDs),
 			Title:   cases.Title(language.English, cases.Compact).String(gofakeit.Adjective() + " " + gofakeit.Noun()),
 			Order:   int(i),
 		}

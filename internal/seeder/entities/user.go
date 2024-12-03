@@ -39,7 +39,7 @@ func (s *UserSeederImpl) Seed(count uint) {
 		users[i] = models.User{
 			Username: gofakeit.Username(),
 			Email:    gofakeit.Email(),
-			RoleID:   selector.NewSelector().ExponentialSelect(s.roleIDs),
+			RoleID:   selector.NewSliceSelector().Exponential(s.roleIDs),
 		}
 	}
 

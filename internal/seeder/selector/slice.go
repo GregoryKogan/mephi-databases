@@ -6,22 +6,22 @@ import (
 	"golang.org/x/exp/rand"
 )
 
-type Selector interface {
-	RandomSelect([]uint) uint
-	ExponentialSelect([]uint) uint
+type SliceSelector interface {
+	Random([]uint) uint
+	Exponential([]uint) uint
 }
 
-type SelectorImpl struct{}
+type SliceSelectorImpl struct{}
 
-func NewSelector() Selector {
-	return &SelectorImpl{}
+func NewSliceSelector() SliceSelector {
+	return &SliceSelectorImpl{}
 }
 
-func (s *SelectorImpl) RandomSelect(ids []uint) uint {
+func (s *SliceSelectorImpl) Random(ids []uint) uint {
 	return ids[rand.Intn(len(ids))]
 }
 
-func (s *SelectorImpl) ExponentialSelect(ids []uint) uint {
+func (s *SliceSelectorImpl) Exponential(ids []uint) uint {
 	rand.Seed(uint64(time.Now().UnixNano()))
 	totalWeight := 0.0
 	for i := range ids {

@@ -39,7 +39,7 @@ func (s *LabelSeederImpl) Seed(count uint) {
 	labels := make([]models.Label, count)
 	for i := uint(0); i < count; i++ {
 		labels[i] = models.Label{
-			BoardID: selector.NewSelector().RandomSelect(s.boardIDs),
+			BoardID: selector.NewSliceSelector().Random(s.boardIDs),
 			Title:   cases.Title(language.English, cases.Compact).String(gofakeit.Noun()),
 			Color:   gofakeit.HexColor(),
 		}

@@ -33,8 +33,8 @@ func (s *CommentSeederImpl) Seed(count uint) {
 	comments := make([]models.Comment, count)
 	for i := uint(0); i < count; i++ {
 		comments[i] = models.Comment{
-			CardID: selector.NewSelector().RandomSelect(s.cardIDs),
-			UserID: selector.NewSelector().RandomSelect(s.userIDs),
+			CardID: selector.NewSliceSelector().Random(s.cardIDs),
+			UserID: selector.NewSliceSelector().Random(s.userIDs),
 			Text:   gofakeit.Comment(),
 		}
 	}

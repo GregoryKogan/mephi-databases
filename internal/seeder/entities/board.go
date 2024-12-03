@@ -36,7 +36,7 @@ func (s *BoardSeederImpl) Seed(count uint) {
 	boards := make([]models.Board, count)
 	for i := uint(0); i < count; i++ {
 		boards[i] = models.Board{
-			OwnerID:     selector.NewSelector().RandomSelect(s.userIDs),
+			OwnerID:     selector.NewSliceSelector().Random(s.userIDs),
 			Title:       cases.Title(language.English, cases.Compact).String(gofakeit.Adjective() + " " + gofakeit.Noun()),
 			Description: gofakeit.Sentence(10),
 		}

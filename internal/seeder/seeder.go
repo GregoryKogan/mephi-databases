@@ -275,6 +275,7 @@ func (s *SeederImpl) migrateAll() {
 		&models.Password{},
 		&models.Role{},
 		&models.Board{},
+		&models.CardAssignee{},
 		&models.BoardMember{},
 		&models.BoardRole{},
 		&models.List{},

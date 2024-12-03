@@ -5,6 +5,7 @@ import (
 	"log/slog"
 
 	"github.com/GregoryKogan/mephi-databases/internal/models"
+	"github.com/GregoryKogan/mephi-databases/internal/seeder/selector"
 	"github.com/spf13/viper"
 	"golang.org/x/exp/rand"
 	"gorm.io/gorm"
@@ -26,7 +27,7 @@ func (s *CardAssigneeSeederImpl) Seed(count uint) {
 	slog.Info(fmt.Sprintf("Seeding %d card assignees", count))
 	defer slog.Info("Card assignees seeded")
 
-	cardAssignees := make([]map[string]interface{}, 0, count)
+	cardAssignees := make([]models.CardAssignee, 0, count)
 	existingAssignees := make(map[uint]map[uint]bool)
 
 	var boards []models.Board
@@ -54,9 +55,21 @@ func (s *CardAssigneeSeederImpl) Seed(count uint) {
 
 			for _, member := range board.Members {
 				if !existingAssignees[card.ID][member.UserID] {
-					cardAssignees = append(cardAssignees, map[string]interface{}{
-						"card_id": card.ID,
-						"user_id": member.UserID,
+					minAssignmentDate := card.CreatedAt
+					if member.CreatedAt.After(minAssignmentDate) {
+						minAssignmentDate = member.CreatedAt
+					}
+
+					if minAssignmentDate.After(card.DueDate.Time) {
+						continue
+					}
+
+					cardAssignees = append(cardAssignees, models.CardAssignee{
+						CardID: card.ID,
+						UserID: member.UserID,
+						Model: gorm.Model{
+							CreatedAt: selector.NewDateSelector().Between(minAssignmentDate, card.DueDate.Time),
+						},
 					})
 					existingAssignees[card.ID][member.UserID] = true
 					created++
@@ -70,7 +83,7 @@ func (s *CardAssigneeSeederImpl) Seed(count uint) {
 		}
 	}
 
-	if err := s.db.Table("card_assignees").Create(&cardAssignees).Error; err != nil {
+	if err := s.db.Create(&cardAssignees).Error; err != nil {
 		panic(err)
 	}
 }

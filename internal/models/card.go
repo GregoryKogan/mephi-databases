@@ -15,7 +15,6 @@ type Card struct {
 	Completed   bool   `gorm:"default:false"`
 	DueDate     sql.NullTime
 	Attachments []Attachment
-	Assignees   []User `gorm:"many2many:card_assignees;"`
 	Comments    []Comment
 	Labels      []Label `gorm:"many2many:card_labels;"`
 }

@@ -42,15 +42,16 @@ func (s *CardSeederImpl) Seed(count uint) {
 	cards := make([]models.Card, count)
 	for i := uint(0); i < count; i++ {
 		listRecord := s.listRecords[selector.NewSliceSelector().Random(len(s.listRecords))]
+		cardsCreationDate := selector.NewDateSelector().BeforeNow(listRecord.CreatedAt)
 		cards[i] = models.Card{
 			ListID:    listRecord.ID,
 			Title:     cases.Title(language.English, cases.Compact).String(gofakeit.Adjective() + " " + gofakeit.Noun()),
 			Content:   gofakeit.Paragraph(2, 3, 10, " "),
 			Completed: selector.NewBoolSelector().WithProbability(0.7),
-			DueDate:   sql.NullTime{Time: selector.NewDateSelector().After(time.Now(), time.Duration(time.Hour*24*30)), Valid: true},
+			DueDate:   sql.NullTime{Time: selector.NewDateSelector().After(cardsCreationDate, time.Duration(time.Hour*24*30)), Valid: true},
 			Order:     int(i),
 			Model: gorm.Model{
-				CreatedAt: selector.NewDateSelector().BeforeNow(listRecord.CreatedAt),
+				CreatedAt: cardsCreationDate,
 			},
 		}
 	}

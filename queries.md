@@ -141,12 +141,13 @@ Calculate the daily average number of comments and card assignments on all board
 ```sql
 WITH daily_activity AS (
     SELECT
-        DATE(comments.created_at) AS activity_date,
+        COALESCE(DATE(comments.created_at), DATE(card_assignees.created_at)) AS activity_date,
         COUNT(DISTINCT comments.id) AS daily_comments,
         COUNT(DISTINCT card_assignees.card_id) AS daily_assignments
     FROM comments
-    FULL JOIN card_assignees ON DATE(comments.created_at) = DATE(card_assignees.created_at)
-    GROUP BY DATE(comments.created_at)
+    FULL JOIN card_assignees
+    ON DATE(comments.created_at) = DATE(card_assignees.created_at)
+    GROUP BY COALESCE(DATE(comments.created_at), DATE(card_assignees.created_at))
 ),
 moving_averages AS (
     SELECT
@@ -163,8 +164,6 @@ moving_averages AS (
 )
 SELECT * FROM moving_averages ORDER BY activity_date;
 ```
-
-<!-- TODO: Add created_at timestamp to card_assignees -->
 
 ### Detect boards with uneven work distribution
 
@@ -211,16 +210,17 @@ Determine how many users actively participate in boards over three periods: the 
 ```sql
 WITH user_activity AS (
     SELECT
-        board_members.board_id,
-        board_members.user_id,
-        MAX(GREATEST(
-            COALESCE(MAX(comments.created_at), '1970-01-01'),
-            COALESCE(MAX(card_assignees.created_at), '1970-01-01')
-        )) AS last_active_date
-    FROM board_members
-    LEFT JOIN comments ON board_members.user_id = comments.user_id
-    LEFT JOIN card_assignees ON board_members.user_id = card_assignees.user_id
-    GROUP BY board_members.board_id, board_members.user_id
+        bm.board_id,
+        bm.user_id,
+        GREATEST(
+            COALESCE(MAX(c.created_at), '1970-01-01'),        -- Last comment date
+            COALESCE(MAX(ca.created_at), '1970-01-01'),       -- Last card assignment date
+            COALESCE(MAX(bm.created_at), '1970-01-01')        -- Board membership date
+        ) AS last_active_date
+    FROM board_members bm
+    LEFT JOIN comments c ON bm.user_id = c.user_id AND bm.board_id = c.card_id
+    LEFT JOIN card_assignees ca ON bm.user_id = ca.user_id AND bm.board_id = ca.card_id
+    GROUP BY bm.board_id, bm.user_id
 )
 SELECT
     board_id,
@@ -228,10 +228,9 @@ SELECT
     COUNT(CASE WHEN last_active_date >= NOW() - INTERVAL '30 days' THEN 1 END) AS active_last_30_days,
     COUNT(*) AS active_all_time
 FROM user_activity
-GROUP BY board_id;
+GROUP BY board_id
+ORDER BY active_all_time DESC;
 ```
-
-<!-- TODO: Add created_at timestamp to card_assignees -->
 
 ### Find struggling members
 
@@ -245,13 +244,12 @@ SELECT
 FROM users
 JOIN card_assignees ON users.id = card_assignees.user_id
 JOIN cards ON card_assignees.card_id = cards.id
-WHERE cards.due_date < NOW()
+WHERE cards.completed = false
+AND cards.due_date < NOW()
 GROUP BY users.id
 HAVING COUNT(cards.id) > 3
 ORDER BY avg_overdue_days DESC;
 ```
-
-<!-- TODO: Implement due_date timestamp generation in the seeder -->
 
 ### Find "hot topics" cards with the most engagement
 
@@ -263,7 +261,7 @@ WITH card_engagement AS (
         cards.title AS card_title,
         COUNT(DISTINCT comments.id) AS comment_count,
         COUNT(DISTINCT attachments.id) AS attachment_count,
-        COUNT(DISTINCT card_assignees.user_id) AS assignee_count,
+        COUNT(DISTINCT card_assignees.user_id) AS assignee_count
     FROM cards
     LEFT JOIN comments ON cards.id = comments.card_id
     LEFT JOIN attachments ON cards.id = attachments.card_id
@@ -312,5 +310,3 @@ FROM total_daily_activity
 GROUP BY day_of_week
 ORDER BY day_of_week;
 ```
-
-<!-- TODO: Add created_at timestamp to card_assignees -->

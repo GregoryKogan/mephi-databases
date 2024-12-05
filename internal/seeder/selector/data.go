@@ -8,7 +8,7 @@ import (
 
 type DateSelector interface {
 	Before(moment time.Time, period time.Duration) time.Time
-	BeforeNow(moment time.Time) time.Time
+	BeforeNow(after time.Time) time.Time
 	After(moment time.Time, period time.Duration) time.Time
 	Between(start, end time.Time) time.Time
 }
@@ -23,8 +23,8 @@ func (d *DateSelectorImpl) Before(moment time.Time, period time.Duration) time.T
 	return moment.Add(-period + time.Duration(rand.Int63n(int64(period))))
 }
 
-func (d *DateSelectorImpl) BeforeNow(moment time.Time) time.Time {
-	return moment.Add(time.Duration(rand.Int63n(int64(time.Since(moment)))))
+func (d *DateSelectorImpl) BeforeNow(after time.Time) time.Time {
+	return after.Add(time.Duration(rand.Int63n(int64(time.Since(after)))))
 }
 
 func (d *DateSelectorImpl) After(moment time.Time, period time.Duration) time.Time {

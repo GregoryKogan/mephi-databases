@@ -6,8 +6,8 @@ import "gorm.io/gorm"
 
 type BoardMember struct {
 	gorm.Model
-	UserID      uint `gorm:"index;not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	BoardID     uint `gorm:"index;not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	UserID      uint `gorm:"index;not null"`
+	BoardID     uint `gorm:"index;not null"`
 	BoardRoleID uint
 	BoardRole   BoardRole `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
 }

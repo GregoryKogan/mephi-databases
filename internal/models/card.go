@@ -14,7 +14,8 @@ type Card struct {
 	Order       int    `gorm:"not null"`
 	Completed   bool   `gorm:"default:false"`
 	DueDate     sql.NullTime
-	Attachments []Attachment
-	Comments    []Comment
-	Labels      []Label `gorm:"many2many:card_labels;"`
+	Attachments []Attachment   `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	Comments    []Comment      `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	Assignments []CardAssignee `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	Labels      []Label        `gorm:"many2many:card_labels;"`
 }

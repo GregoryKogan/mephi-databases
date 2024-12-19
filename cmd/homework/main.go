@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/GregoryKogan/mephi-databases/internal/config"
-	"github.com/GregoryKogan/mephi-databases/internal/lab/seeder"
+	"github.com/GregoryKogan/mephi-databases/internal/hw/seeder"
 	"github.com/spf13/viper"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"

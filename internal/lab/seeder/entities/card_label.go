@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/GregoryKogan/mephi-databases/internal/models"
+	"github.com/GregoryKogan/mephi-databases/internal/lab/models"
 	"github.com/spf13/viper"
 	"golang.org/x/exp/rand"
 	"gorm.io/gorm"

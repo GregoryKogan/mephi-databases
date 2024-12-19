@@ -5,8 +5,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/GregoryKogan/mephi-databases/internal/models"
-	"github.com/GregoryKogan/mephi-databases/internal/seeder/entities"
+	"github.com/GregoryKogan/mephi-databases/internal/lab/models"
+	"github.com/GregoryKogan/mephi-databases/internal/lab/seeder/entities"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
 )

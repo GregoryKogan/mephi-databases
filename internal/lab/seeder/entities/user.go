@@ -5,8 +5,8 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/GregoryKogan/mephi-databases/internal/models"
-	"github.com/GregoryKogan/mephi-databases/internal/seeder/selector"
+	"github.com/GregoryKogan/mephi-databases/internal/lab/models"
+	"github.com/GregoryKogan/mephi-databases/internal/lab/seeder/selector"
 	"github.com/brianvoe/gofakeit/v7"
 	"gorm.io/gorm"
 )

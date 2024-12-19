@@ -12,6 +12,19 @@ services:
     environment:
       DSN: "host=mephi-db user=mephi password=mephi dbname=mephi-db port=5432 sslmode=disable TimeZone=Europe/Moscow"
 
+  hw:
+    container_name: mephi-db-hw
+    restart: no
+    profiles: [ hw ]
+    depends_on:
+      database:
+        condition: service_healthy
+    build:
+      context: .
+      dockerfile: Dockerfile.hw
+    environment:
+      DSN: "host=mephi-db user=mephi password=mephi dbname=mephi-db port=5432 sslmode=disable TimeZone=Europe/Moscow"
+
   database:
     container_name: mephi-db
     image: postgres:latest
@@ -48,16 +61,3 @@ services:
       - ./docker/pgadmin:/var/lib/pgadmin
     ports:
       - 5050:80
-
-  jupyter:
-    container_name: mephi-jupyter
-    image: jupyter/datascience-notebook:latest
-    restart: unless-stopped
-    environment:
-      JUPYTER_ENABLE_LAB: 'yes'
-      JUPYTER_TOKEN: mephi
-      TMPDIR: /home/jovyan/tmp
-    volumes:
-      - ./docker/jupyter:/home/jovyan
-    ports:
-      - 8888:8888

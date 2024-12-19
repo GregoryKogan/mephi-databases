@@ -3,7 +3,7 @@ package entities
 import (
 	"log/slog"
 
-	"github.com/GregoryKogan/mephi-databases/internal/models"
+	"github.com/GregoryKogan/mephi-databases/internal/lab/models"
 	"github.com/jackc/pgx/pgtype"
 	"gorm.io/gorm"
 )

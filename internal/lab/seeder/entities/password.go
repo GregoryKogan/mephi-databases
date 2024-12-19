@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/GregoryKogan/mephi-databases/internal/models"
+	"github.com/GregoryKogan/mephi-databases/internal/lab/models"
 	"gorm.io/gorm"
 )
 

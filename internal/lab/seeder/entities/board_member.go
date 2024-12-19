@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/GregoryKogan/mephi-databases/internal/models"
-	"github.com/GregoryKogan/mephi-databases/internal/seeder/selector"
+	"github.com/GregoryKogan/mephi-databases/internal/lab/models"
+	"github.com/GregoryKogan/mephi-databases/internal/lab/seeder/selector"
 	"gorm.io/gorm"
 )
 

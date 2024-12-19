@@ -15,7 +15,7 @@ services:
   database:
     container_name: mephi-db
     image: postgres:latest
-    restart: no
+    restart: always
     environment:
       POSTGRES_PASSWORD: mephi
       POSTGRES_USER: mephi
@@ -49,5 +49,15 @@ services:
     ports:
       - 5050:80
 
-volumes:
-  mephi-pgadmin:
+  jupyter:
+    container_name: mephi-jupyter
+    image: jupyter/datascience-notebook:latest
+    restart: unless-stopped
+    environment:
+      JUPYTER_ENABLE_LAB: 'yes'
+      JUPYTER_TOKEN: mephi
+      TMPDIR: /home/jovyan/tmp
+    volumes:
+      - ./docker/jupyter:/home/jovyan
+    ports:
+      - 8888:8888

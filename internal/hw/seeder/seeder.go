@@ -14,24 +14,26 @@ type Seeder interface {
 }
 
 type SeederImpl struct {
-	db                *gorm.DB
-	authorSeeder      entities.AuthorSeeder
-	bookSeeder        entities.BookSeeder
-	genreSeeder       entities.GenreSeeder
-	subscriberSeeder  entities.SubscriberSeeder
-	booksAuthorSeeder entities.BooksAuthorsSeeder
-	booksGenreSeeder  entities.BooksGenresSeeder
+	db                 *gorm.DB
+	authorSeeder       entities.AuthorSeeder
+	bookSeeder         entities.BookSeeder
+	genreSeeder        entities.GenreSeeder
+	subscriberSeeder   entities.SubscriberSeeder
+	booksAuthorSeeder  entities.BooksAuthorsSeeder
+	booksGenreSeeder   entities.BooksGenresSeeder
+	subscriptionSeeder entities.SubscriptionSeeder
 }
 
 func NewSeeder(db *gorm.DB) Seeder {
 	return &SeederImpl{
-		db:                db,
-		authorSeeder:      entities.NewAuthorSeeder(db),
-		bookSeeder:        entities.NewBookSeeder(db),
-		genreSeeder:       entities.NewGenreSeeder(db),
-		subscriberSeeder:  entities.NewSubscriberSeeder(db),
-		booksAuthorSeeder: entities.NewBooksAuthorsSeeder(db),
-		booksGenreSeeder:  entities.NewBooksGenresSeeder(db),
+		db:                 db,
+		authorSeeder:       entities.NewAuthorSeeder(db),
+		bookSeeder:         entities.NewBookSeeder(db),
+		genreSeeder:        entities.NewGenreSeeder(db),
+		subscriberSeeder:   entities.NewSubscriberSeeder(db),
+		booksAuthorSeeder:  entities.NewBooksAuthorsSeeder(db),
+		booksGenreSeeder:   entities.NewBooksGenresSeeder(db),
+		subscriptionSeeder: entities.NewSubscriptionSeeder(db),
 	}
 }
 
@@ -60,7 +62,7 @@ func (s *SeederImpl) Seed() {
 	}()
 	wg.Wait()
 
-	wg.Add(2)
+	wg.Add(3)
 	go func() {
 		defer wg.Done()
 		s.booksAuthorSeeder.Seed(s.bookSeeder.GetIDs(), s.authorSeeder.GetIDs(), 1_000_000)
@@ -68,6 +70,10 @@ func (s *SeederImpl) Seed() {
 	go func() {
 		defer wg.Done()
 		s.booksGenreSeeder.Seed(s.bookSeeder.GetIDs(), s.genreSeeder.GetIDs(), 1_000_000)
+	}()
+	go func() {
+		defer wg.Done()
+		s.subscriptionSeeder.Seed(s.bookSeeder.GetIDs(), s.subscriberSeeder.GetIDs(), 10_000_000)
 	}()
 	wg.Wait()
 }

@@ -20,6 +20,7 @@ type SeederImpl struct {
 	genreSeeder       entities.GenreSeeder
 	subscriberSeeder  entities.SubscriberSeeder
 	booksAuthorSeeder entities.BooksAuthorsSeeder
+	booksGenreSeeder  entities.BooksGenresSeeder
 }
 
 func NewSeeder(db *gorm.DB) Seeder {
@@ -30,6 +31,7 @@ func NewSeeder(db *gorm.DB) Seeder {
 		genreSeeder:       entities.NewGenreSeeder(db),
 		subscriberSeeder:  entities.NewSubscriberSeeder(db),
 		booksAuthorSeeder: entities.NewBooksAuthorsSeeder(db),
+		booksGenreSeeder:  entities.NewBooksGenresSeeder(db),
 	}
 }
 
@@ -58,10 +60,14 @@ func (s *SeederImpl) Seed() {
 	}()
 	wg.Wait()
 
-	wg.Add(1)
+	wg.Add(2)
 	go func() {
 		defer wg.Done()
 		s.booksAuthorSeeder.Seed(s.bookSeeder.GetIDs(), s.authorSeeder.GetIDs(), 1_000_000)
+	}()
+	go func() {
+		defer wg.Done()
+		s.booksGenreSeeder.Seed(s.bookSeeder.GetIDs(), s.genreSeeder.GetIDs(), 1_000_000)
 	}()
 	wg.Wait()
 }

@@ -39,7 +39,7 @@ func NewSeeder(db *gorm.DB) Seeder {
 
 func (s *SeederImpl) Seed() {
 	s.dropAll()
-	s.runInserts()
+	s.init()
 
 	var wg sync.WaitGroup
 
@@ -91,7 +91,7 @@ func (s *SeederImpl) dropAll() {
 	slog.Info("Tables dropped", slog.Any("tables", tables))
 }
 
-func (s *SeederImpl) runInserts() {
+func (s *SeederImpl) init() {
 	sql, err := os.ReadFile("internal/hw/init.sql")
 	if err != nil {
 		slog.Error("failed to read SQL file", slog.Any("error", err))

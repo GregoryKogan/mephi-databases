@@ -10,6 +10,7 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+	"gorm.io/gorm/schema"
 )
 
 func main() {
@@ -19,6 +20,10 @@ func main() {
 	db, err := gorm.Open(postgres.New(postgres.Config{DSN: os.Getenv("DSN")}), &gorm.Config{
 		CreateBatchSize: viper.GetInt("seeder.create_batch_size"),
 		Logger:          logger.Default.LogMode(logger.Silent),
+		// Set schema to library
+		NamingStrategy: schema.NamingStrategy{
+			TablePrefix: "library.",
+		},
 	})
 	if err != nil {
 		slog.Error("failed to connect database", slog.Any("error", err))

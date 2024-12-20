@@ -4,6 +4,7 @@ import (
 	"log/slog"
 	"os"
 
+	"github.com/GregoryKogan/mephi-databases/internal/hw/seeder/entities"
 	"gorm.io/gorm"
 )
 
@@ -12,27 +13,27 @@ type Seeder interface {
 }
 
 type SeederImpl struct {
-	db *gorm.DB
+	db           *gorm.DB
+	authorSeeder entities.AuthorSeeder
 }
 
 func NewSeeder(db *gorm.DB) Seeder {
-	return &SeederImpl{db: db}
+	return &SeederImpl{db: db, authorSeeder: entities.NewAuthorSeeder(db)}
 }
 
 func (s *SeederImpl) Seed() {
 	s.dropAll()
 	s.runInserts()
+
+	s.authorSeeder.Seed(10000)
 }
 
 func (s *SeederImpl) dropAll() {
-	slog.Info("Dropping old tables")
-	tables, err := s.db.Migrator().GetTables()
-	if err != nil {
-		slog.Error("failed to get tables", slog.Any("error", err))
-		panic(err)
-	}
+	schema := "library"
+	tables := []string{"authors", "books", "genres", "m2m_books_authors", "m2m_books_genres", "subscribers", "subscriptions"}
 	for _, table := range tables {
-		if err := s.db.Migrator().DropTable(table); err != nil {
+		fullTable := schema + "." + table
+		if err := s.db.Migrator().DropTable(fullTable); err != nil {
 			slog.Error("failed to drop table", slog.Any("table", table), slog.Any("error", err))
 			panic(err)
 		}
@@ -41,7 +42,7 @@ func (s *SeederImpl) dropAll() {
 }
 
 func (s *SeederImpl) runInserts() {
-	sql, err := os.ReadFile("internal/hw/inserts.sql")
+	sql, err := os.ReadFile("internal/hw/init.sql")
 	if err != nil {
 		slog.Error("failed to read SQL file", slog.Any("error", err))
 		panic(err)

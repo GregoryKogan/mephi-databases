@@ -5,7 +5,7 @@ import (
 	"log/slog"
 
 	"github.com/GregoryKogan/mephi-databases/internal/lab/models"
-	"github.com/GregoryKogan/mephi-databases/internal/lab/seeder/selector"
+	"github.com/GregoryKogan/mephi-databases/internal/selector"
 	"gorm.io/gorm"
 )
 

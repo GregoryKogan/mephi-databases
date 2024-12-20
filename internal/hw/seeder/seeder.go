@@ -15,17 +15,23 @@ type Seeder interface {
 type SeederImpl struct {
 	db           *gorm.DB
 	authorSeeder entities.AuthorSeeder
+	bookSeeder   entities.BookSeeder
 }
 
 func NewSeeder(db *gorm.DB) Seeder {
-	return &SeederImpl{db: db, authorSeeder: entities.NewAuthorSeeder(db)}
+	return &SeederImpl{
+		db:           db,
+		authorSeeder: entities.NewAuthorSeeder(db),
+		bookSeeder:   entities.NewBookSeeder(db),
+	}
 }
 
 func (s *SeederImpl) Seed() {
 	s.dropAll()
 	s.runInserts()
 
-	s.authorSeeder.Seed(10000)
+	s.authorSeeder.Seed(10_000)
+	s.bookSeeder.Seed(100_000)
 }
 
 func (s *SeederImpl) dropAll() {

@@ -16,6 +16,7 @@ type SeederImpl struct {
 	db           *gorm.DB
 	authorSeeder entities.AuthorSeeder
 	bookSeeder   entities.BookSeeder
+	genreSeeder  entities.GenreSeeder
 }
 
 func NewSeeder(db *gorm.DB) Seeder {
@@ -23,6 +24,7 @@ func NewSeeder(db *gorm.DB) Seeder {
 		db:           db,
 		authorSeeder: entities.NewAuthorSeeder(db),
 		bookSeeder:   entities.NewBookSeeder(db),
+		genreSeeder:  entities.NewGenreSeeder(db),
 	}
 }
 
@@ -32,6 +34,7 @@ func (s *SeederImpl) Seed() {
 
 	s.authorSeeder.Seed(10_000)
 	s.bookSeeder.Seed(100_000)
+	s.genreSeeder.Seed()
 }
 
 func (s *SeederImpl) dropAll() {

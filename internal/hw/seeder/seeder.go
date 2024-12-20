@@ -3,6 +3,7 @@ package seeder
 import (
 	"log/slog"
 	"os"
+	"sync"
 
 	"github.com/GregoryKogan/mephi-databases/internal/hw/seeder/entities"
 	"gorm.io/gorm"
@@ -34,10 +35,26 @@ func (s *SeederImpl) Seed() {
 	s.dropAll()
 	s.runInserts()
 
-	s.authorSeeder.Seed(10_000)
-	s.bookSeeder.Seed(100_000)
-	s.genreSeeder.Seed()
-	s.subscriberSeeder.Seed(1_000_000)
+	var wg sync.WaitGroup
+
+	wg.Add(4)
+	go func() {
+		defer wg.Done()
+		s.authorSeeder.Seed(10_000)
+	}()
+	go func() {
+		defer wg.Done()
+		s.bookSeeder.Seed(100_000)
+	}()
+	go func() {
+		defer wg.Done()
+		s.genreSeeder.Seed()
+	}()
+	go func() {
+		defer wg.Done()
+		s.subscriberSeeder.Seed(1_000_000)
+	}()
+	wg.Wait()
 }
 
 func (s *SeederImpl) dropAll() {
